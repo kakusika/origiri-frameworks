@@ -14,7 +14,9 @@ use crate::palette::{PalettePreset, RgbColor};
 /// exposes only the accent (already covered by `super::accent`) and
 /// light/dark, not a full set of named colors.
 pub(crate) fn detect() -> Option<PalettePreset> {
-    let path = directories::BaseDirs::new()?.config_dir().join("kdeglobals");
+    let path = directories::BaseDirs::new()?
+        .config_dir()
+        .join("kdeglobals");
     let contents = std::fs::read_to_string(path).ok()?;
 
     let mut window = None;

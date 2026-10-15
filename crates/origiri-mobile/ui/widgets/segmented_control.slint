@@ -1,5 +1,5 @@
 import { Palette } from "std-widgets.slint";
-import { Metrics } from "@origiri-mobile/tokens.slint";
+import { Metrics, Colors } from "@origiri-mobile/tokens.slint";
 
 // A row of equal-width pill segments, exactly one selected at a time
 // (Settings' Theme/Font Size/UI Scale pickers all share this shape).
@@ -21,13 +21,13 @@ export component SegmentedControl inherits HorizontalLayout {
         horizontal-stretch: 1;
         height: Metrics.bubble-chip-height;
         border-radius: self.height / 2;
-        background: i == root.selected ? Palette.accent-background : Palette.foreground.with-alpha(0.08);
+        background: i == root.selected ? Colors.primary : Palette.foreground.with-alpha(0.08);
 
         Text {
             text: opt;
             font-size: Metrics.font-sub;
             font-weight: i == root.selected ? 600 : 400;
-            color: i == root.selected ? Palette.accent-foreground : Palette.foreground;
+            color: i == root.selected ? Colors.on-primary : Palette.foreground;
             horizontal-alignment: center;
             vertical-alignment: center;
         }

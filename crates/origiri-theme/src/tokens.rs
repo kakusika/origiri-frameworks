@@ -591,11 +591,17 @@ mod tests {
         println!("on-error: {}", hex(c.on_error));
         println!("error-container: {}", hex(c.error_container));
         println!("on-error-container: {}", hex(c.on_error_container));
-        println!("surface-container-lowest: {}", hex(c.surface_container_lowest));
+        println!(
+            "surface-container-lowest: {}",
+            hex(c.surface_container_lowest)
+        );
         println!("surface-container-low: {}", hex(c.surface_container_low));
         println!("surface-container: {}", hex(c.surface_container));
         println!("surface-container-high: {}", hex(c.surface_container_high));
-        println!("surface-container-highest: {}", hex(c.surface_container_highest));
+        println!(
+            "surface-container-highest: {}",
+            hex(c.surface_container_highest)
+        );
         println!("outline: {}", hex(c.outline));
         println!("outline-variant: {}", hex(c.outline_variant));
 

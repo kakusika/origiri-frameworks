@@ -1,5 +1,5 @@
 import { Palette } from "std-widgets.slint";
-import { Metrics } from "@origiri-mobile/tokens.slint";
+import { Metrics, Colors } from "@origiri-mobile/tokens.slint";
 import { Icon, TablerIcons } from "@origiri-icons/icons.slint";
 
 export component Fab inherits Rectangle {
@@ -9,14 +9,14 @@ export component Fab inherits Rectangle {
     width: Metrics.fab;
     height: Metrics.fab;
     border-radius: self.width / 2;
-    background: Palette.accent-background;
+    background: Colors.primary;
     drop-shadow-blur: 8px;
     drop-shadow-offset-y: 2px;
     drop-shadow-color: #00000055;
 
     Icon {
         source: TablerIcons.plus;
-        color: Palette.accent-foreground;
+        color: Colors.on-primary;
         x: (parent.width - self.width) / 2;
         y: (parent.height - self.height) / 2;
     }

@@ -39,7 +39,12 @@ impl Default for MaterialSettings {
     }
 }
 
-pub fn create_dynamic_scheme(hct: Hct, variant: MaterialVariant, is_dark: bool, contrast: f64) -> DynamicScheme {
+pub fn create_dynamic_scheme(
+    hct: Hct,
+    variant: MaterialVariant,
+    is_dark: bool,
+    contrast: f64,
+) -> DynamicScheme {
     match variant {
         MaterialVariant::TonalSpot => (*SchemeTonalSpot::new(hct, is_dark, contrast)).clone(),
         MaterialVariant::Vivid => (*SchemeVibrant::new(hct, is_dark, contrast)).clone(),

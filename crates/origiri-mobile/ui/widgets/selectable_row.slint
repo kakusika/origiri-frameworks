@@ -30,7 +30,7 @@ export component SelectableRow inherits Rectangle {
         height: parent.height - Metrics.spacing-xs;
         border-radius: Metrics.radius-lg;
         background: root.highlighted
-            ? Palette.accent-background.with-alpha(0.20)
+            ? Colors.primary-container
             : (touch.pressed ? Palette.foreground.with-alpha(0.08) : transparent);
         animate background {
             duration: 150ms;
@@ -60,7 +60,7 @@ export component SelectableRow inherits Rectangle {
                     text: root.label-text;
                     font-size: Metrics.font-body;
                     font-weight: (root.bold || root.highlighted) ? 600 : 400;
-                    color: root.highlighted ? Palette.accent-background : Palette.foreground;
+                    color: root.highlighted ? Colors.primary : Palette.foreground;
                     vertical-alignment: center;
                     overflow: elide;
                 }
