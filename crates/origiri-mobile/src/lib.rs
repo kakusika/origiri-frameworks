@@ -37,6 +37,37 @@ macro_rules! push_mobile_color_tokens {
         tokens.set_surface($color(c.surface));
         tokens.set_surface_elevated($color(c.surface_raised));
         tokens.set_card_border($color(c.on_raised.border));
+
+        // M3 Semantic Roles
+        tokens.set_primary($color(c.primary));
+        tokens.set_on_primary($color(c.on_primary));
+        tokens.set_primary_container($color(c.primary_container));
+        tokens.set_on_primary_container($color(c.on_primary_container));
+
+        tokens.set_secondary($color(c.secondary));
+        tokens.set_on_secondary($color(c.on_secondary));
+        tokens.set_secondary_container($color(c.secondary_container));
+        tokens.set_on_secondary_container($color(c.on_secondary_container));
+
+        tokens.set_tertiary($color(c.tertiary));
+        tokens.set_on_tertiary($color(c.on_tertiary));
+        tokens.set_tertiary_container($color(c.tertiary_container));
+        tokens.set_on_tertiary_container($color(c.on_tertiary_container));
+
+        tokens.set_error($color(c.error));
+        tokens.set_on_error($color(c.on_error));
+        tokens.set_error_container($color(c.error_container));
+        tokens.set_on_error_container($color(c.on_error_container));
+
+        tokens.set_surface_container_lowest($color(c.surface_container_lowest));
+        tokens.set_surface_container_low($color(c.surface_container_low));
+        tokens.set_surface_container($color(c.surface_container));
+        tokens.set_surface_container_high($color(c.surface_container_high));
+        tokens.set_surface_container_highest($color(c.surface_container_highest));
+
+        tokens.set_outline($color(c.outline));
+        tokens.set_outline_variant($color(c.outline_variant));
+
         $theme_flag.set_use_custom(true);
     }};
 }

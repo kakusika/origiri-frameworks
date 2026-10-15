@@ -76,12 +76,42 @@ export global Theme {
 export global ThemeColors {
     in-out property <color> danger: #da4453;
     in-out property <color> success: #10b981;
-    in-out property <color> separator: #857b8b;
+    in-out property <color> separator: #423849;
     in-out property <color> muted: #a69cab;
     in-out property <color> page-background: #150c1d;
     in-out property <color> surface: #21142d;
     in-out property <color> surface-elevated: #34204a;
-    in-out property <color> card-border: #817190;
+    in-out property <color> card-border: #4b385f;
+
+    // Full M3 Semantic Roles
+    in-out property <color> primary: #d12a55;
+    in-out property <color> on-primary: #f1f3f9;
+    in-out property <color> primary-container: #44142b;
+    in-out property <color> on-primary-container: #f4eaf8;
+
+    in-out property <color> secondary: #d12a55;
+    in-out property <color> on-secondary: #f1f3f9;
+    in-out property <color> secondary-container: #3b1733;
+    in-out property <color> on-secondary-container: #f4eaf8;
+
+    in-out property <color> tertiary: #e69db7;
+    in-out property <color> on-tertiary: #f1f3f9;
+    in-out property <color> tertiary-container: #311125;
+    in-out property <color> on-tertiary-container: #f4eaf8;
+
+    in-out property <color> error: #da4453;
+    in-out property <color> on-error: #f1f3f9;
+    in-out property <color> error-container: #3c1728;
+    in-out property <color> on-error-container: #da4453;
+
+    in-out property <color> surface-container-lowest: #150c1d;
+    in-out property <color> surface-container-low: #150c1d;
+    in-out property <color> surface-container: #21142d;
+    in-out property <color> surface-container-high: #34204a;
+    in-out property <color> surface-container-highest: #34204a;
+
+    in-out property <color> outline: #302737;
+    in-out property <color> outline-variant: #423849;
 }
 
 // Follows the OS light/dark palette reactively -- this crate's original,
@@ -95,17 +125,7 @@ export global SystemColors {
     out property <color> muted: Palette.foreground.with-alpha(0.6);
 
     // Dynamic surface elevation colors derived adaptively from system
-    // Palette. Which of background/alternate-background actually reads
-    // brighter is NOT consistent across widget styles: in dark mode,
-    // Fluent's alternate-background (#2C2C2C) is brighter than its
-    // background (#1C1C1C) -- the usual "surfaces lighten as they
-    // elevate" convention -- but Material's alternate-background
-    // (#1C1B1F) is *darker* than its background (#2a282d), the opposite
-    // direction (confirmed by comparing `.to-hsv().value` for both: this
-    // is what made Android (material style) render with a *brighter* page
-    // behind *darker* cards, inverted from desktop (fluent)). Comparing
-    // actual brightness instead of hardcoding a direction keeps the
-    // page-vs-card hierarchy correct under either style.
+    // Palette.
     out property <bool> alternate-is-dimmer: Palette.alternate-background.to-hsv().value < Palette.background.to-hsv().value;
     out property <brush> dimmer-surface: alternate-is-dimmer ? Palette.alternate-background : Palette.background;
     out property <brush> brighter-surface: alternate-is-dimmer ? Palette.background : Palette.alternate-background;
@@ -116,6 +136,36 @@ export global SystemColors {
     out property <color> surface: Palette.background;
     out property <color> surface-elevated: brighter-surface;
     out property <color> card-border: Palette.foreground.with-alpha(0.08);
+
+    // Dynamic M3 fallback derivation from system Palette
+    out property <color> primary: Palette.accent-background;
+    out property <color> on-primary: Palette.accent-foreground;
+    out property <color> primary-container: Palette.accent-background.with-alpha(0.2);
+    out property <color> on-primary-container: Palette.foreground;
+
+    out property <color> secondary: Palette.foreground.with-alpha(0.8);
+    out property <color> on-secondary: Palette.background;
+    out property <color> secondary-container: Palette.foreground.with-alpha(0.12);
+    out property <color> on-secondary-container: Palette.foreground;
+
+    out property <color> tertiary: Palette.accent-background;
+    out property <color> on-tertiary: Palette.accent-foreground;
+    out property <color> tertiary-container: Palette.accent-background.with-alpha(0.15);
+    out property <color> on-tertiary-container: Palette.foreground;
+
+    out property <color> error: #d9302f;
+    out property <color> on-error: #ffffff;
+    out property <color> error-container: #d9302f.with-alpha(0.2);
+    out property <color> on-error-container: #d9302f;
+
+    out property <color> surface-container-lowest: root.page-background;
+    out property <color> surface-container-low: root.surface;
+    out property <color> surface-container: root.surface;
+    out property <color> surface-container-high: root.surface-elevated;
+    out property <color> surface-container-highest: root.surface-elevated;
+
+    out property <color> outline: root.card-border;
+    out property <color> outline-variant: root.separator;
 }
 
 // Resolves to `SystemColors` or `ThemeColors` depending on
@@ -131,4 +181,34 @@ export global Colors {
     out property <color> surface: Theme.use-custom ? ThemeColors.surface : SystemColors.surface;
     out property <color> surface-elevated: Theme.use-custom ? ThemeColors.surface-elevated : SystemColors.surface-elevated;
     out property <color> card-border: Theme.use-custom ? ThemeColors.card-border : SystemColors.card-border;
+
+    // Full M3 Semantic Roles
+    out property <color> primary: Theme.use-custom ? ThemeColors.primary : SystemColors.primary;
+    out property <color> on-primary: Theme.use-custom ? ThemeColors.on-primary : SystemColors.on-primary;
+    out property <color> primary-container: Theme.use-custom ? ThemeColors.primary-container : SystemColors.primary-container;
+    out property <color> on-primary-container: Theme.use-custom ? ThemeColors.on-primary-container : SystemColors.on-primary-container;
+
+    out property <color> secondary: Theme.use-custom ? ThemeColors.secondary : SystemColors.secondary;
+    out property <color> on-secondary: Theme.use-custom ? ThemeColors.on-secondary : SystemColors.on-secondary;
+    out property <color> secondary-container: Theme.use-custom ? ThemeColors.secondary-container : SystemColors.secondary-container;
+    out property <color> on-secondary-container: Theme.use-custom ? ThemeColors.on-secondary-container : SystemColors.on-secondary-container;
+
+    out property <color> tertiary: Theme.use-custom ? ThemeColors.tertiary : SystemColors.tertiary;
+    out property <color> on-tertiary: Theme.use-custom ? ThemeColors.on-tertiary : SystemColors.on-tertiary;
+    out property <color> tertiary-container: Theme.use-custom ? ThemeColors.tertiary-container : SystemColors.tertiary-container;
+    out property <color> on-tertiary-container: Theme.use-custom ? ThemeColors.on-tertiary-container : SystemColors.on-tertiary-container;
+
+    out property <color> error: Theme.use-custom ? ThemeColors.error : SystemColors.error;
+    out property <color> on-error: Theme.use-custom ? ThemeColors.on-error : SystemColors.on-error;
+    out property <color> error-container: Theme.use-custom ? ThemeColors.error-container : SystemColors.error-container;
+    out property <color> on-error-container: Theme.use-custom ? ThemeColors.on-error-container : SystemColors.on-error-container;
+
+    out property <color> surface-container-lowest: Theme.use-custom ? ThemeColors.surface-container-lowest : SystemColors.surface-container-lowest;
+    out property <color> surface-container-low: Theme.use-custom ? ThemeColors.surface-container-low : SystemColors.surface-container-low;
+    out property <color> surface-container: Theme.use-custom ? ThemeColors.surface-container : SystemColors.surface-container;
+    out property <color> surface-container-high: Theme.use-custom ? ThemeColors.surface-container-high : SystemColors.surface-container-high;
+    out property <color> surface-container-highest: Theme.use-custom ? ThemeColors.surface-container-highest : SystemColors.surface-container-highest;
+
+    out property <color> outline: Theme.use-custom ? ThemeColors.outline : SystemColors.outline;
+    out property <color> outline-variant: Theme.use-custom ? ThemeColors.outline-variant : SystemColors.outline-variant;
 }

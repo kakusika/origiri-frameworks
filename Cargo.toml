@@ -42,6 +42,7 @@ ash = "0.38"
 clap = { version = "4.6", features = ["derive"] }
 dark-light = { version = "3", default-features = false }
 directories = "6.0"
+mcu-material-color = "0.2"
 naga = { version = "30", features = ["spv-out", "wgsl-in"] }
 notify = "8.2"
 serde = { version = "1", features = ["derive"] }

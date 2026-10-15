@@ -9,6 +9,7 @@ os = ["dep:dark-light", "dep:winreg", "dep:zbus", "dep:directories"]
 
 [dependencies]
 dark-light = { workspace = true, optional = true }
+mcu-material-color = { workspace = true }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 winreg = { workspace = true, optional = true }

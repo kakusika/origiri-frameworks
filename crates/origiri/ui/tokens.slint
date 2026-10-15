@@ -30,9 +30,9 @@ export global Tokens {
     in-out property <color> destructive-pressed: #ae3642;
     in-out property <color> success: #10b981;
 
-    in-out property <color> border: #6e6575;
-    in-out property <color> border-hover: #9b91a0;
-    in-out property <color> divider: #857b8b;
+    in-out property <color> border: #302737;
+    in-out property <color> border-hover: #5c5363;
+    in-out property <color> divider: #423849;
     in-out property <color> hover: #311125;
     in-out property <color> pressed: #731b39;
     in-out property <color> selected: #44142b;
@@ -45,9 +45,9 @@ export global Tokens {
     in-out property <color> success-soft: #142f31;
     in-out property <color> success-border: #13634f;
 
-    in-out property <color> border-on-surface: #756a7e;
-    in-out property <color> border-hover-on-surface: #a094a7;
-    in-out property <color> divider-on-surface: #8b7f93;
+    in-out property <color> border-on-surface: #3a2e45;
+    in-out property <color> border-hover-on-surface: #65586e;
+    in-out property <color> divider-on-surface: #4b3f56;
     in-out property <color> hover-on-surface: #3b1733;
     in-out property <color> pressed-on-surface: #791f41;
     in-out property <color> selected-on-surface: #4d1a37;
@@ -60,9 +60,9 @@ export global Tokens {
     in-out property <color> success-soft-on-surface: #1e353e;
     in-out property <color> success-border-on-surface: #196757;
 
-    in-out property <color> border-on-raised: #817190;
-    in-out property <color> border-hover-on-raised: #a799b2;
-    in-out property <color> divider-on-raised: #9485a1;
+    in-out property <color> border-on-raised: #4b385f;
+    in-out property <color> border-hover-on-raised: #716182;
+    in-out property <color> divider-on-raised: #5a486d;
     in-out property <color> hover-on-raised: #4c224c;
     in-out property <color> pressed-on-raised: #832550;
     in-out property <color> selected-on-raised: #5b234d;
@@ -86,9 +86,12 @@ export global Tokens {
 
     // -- Typography (not yet resolved from settings -- no persisted font
     // setting this crate reads today, kept as fixed literals) --
-    in-out property <length> font-size-small: 11px;
-    in-out property <length> font-size-normal: 13px;
-    in-out property <length> font-size-large: 15px;
+    // Sized for CJK legibility: a Latin-tuned 11/13/15px scale packs too many
+    // strokes per em for kanji, which reads as crushed glyphs rather than
+    // small text (see mumeum's 2026-10-09 report).
+    in-out property <length> font-size-small: 13px;
+    in-out property <length> font-size-normal: 15px;
+    in-out property <length> font-size-large: 17px;
 
     // -- Animation (ms) -- 0 means "apply immediately, no animation" (see
     // `AnimationTokens` doc comment), consuming .slint files should treat

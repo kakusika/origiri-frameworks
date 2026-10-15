@@ -7,6 +7,7 @@
 //! (TokyoNight, Catppuccin, Flexoki, alongside Origiri's own light/dark)
 //! layered on top of the same `PalettePreset`/`RgbColor` types.
 
+pub mod material;
 pub mod presets;
 
 /// An 8-bit-per-channel RGB color, independent of any Qt type so this crate

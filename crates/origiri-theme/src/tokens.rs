@@ -66,9 +66,41 @@ fn blend_with_contrast(
 pub const TEXT_SECONDARY_MIN_CONTRAST: f32 = 4.5;
 pub const TEXT_DISABLED_MIN_CONTRAST: f32 = 3.0;
 
-/// Mirrors `ui/tokens.slint`'s `Tokens` global 1:1.
-#[derive(Debug, Clone, Copy)]
+/// Mirrors `ui/tokens.slint`'s `Tokens` global 1:1, extended with M3 semantic roles.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ColorTokens {
+    // === Material 3 Semantic Roles ===
+    pub primary: Rgba,
+    pub on_primary: Rgba,
+    pub primary_container: Rgba,
+    pub on_primary_container: Rgba,
+
+    pub secondary: Rgba,
+    pub on_secondary: Rgba,
+    pub secondary_container: Rgba,
+    pub on_secondary_container: Rgba,
+
+    pub tertiary: Rgba,
+    pub on_tertiary: Rgba,
+    pub tertiary_container: Rgba,
+    pub on_tertiary_container: Rgba,
+
+    pub error: Rgba,
+    pub on_error: Rgba,
+    pub error_container: Rgba,
+    pub on_error_container: Rgba,
+
+    pub surface_container_lowest: Rgba,
+    pub surface_container_low: Rgba,
+    pub surface_container: Rgba,
+    pub surface_container_high: Rgba,
+    pub surface_container_highest: Rgba,
+
+    pub on_surface_variant: Rgba,
+    pub outline: Rgba,
+    pub outline_variant: Rgba,
+
+    // === Origiri Desktop & Slint Roles ===
     pub background: Rgba,
     pub surface: Rgba,
     pub surface_raised: Rgba,
@@ -96,7 +128,7 @@ pub struct ColorTokens {
 /// The colors that are drawn on top of one solid ground, each already
 /// blended against that ground. A view picks the set for the ground it
 /// sits on instead of tinting a color at the point of use.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct GroundTokens {
     pub border: Rgba,
     pub divider: Rgba,
@@ -184,8 +216,13 @@ fn ground_tokens(ground: RgbColor, text: RgbColor, accent: RgbColor) -> GroundTo
     let selected = opaque_blend(accent, ground, 0.25);
     let backings = [ground, hover, selected];
     GroundTokens {
-        border: o(opaque_blend(text, ground, 0.4)),
-        divider: o(opaque_blend(text, ground, 0.5)),
+        // Low alphas on purpose: blending even moderately toward `text` (near-white on a dark
+        // ground) swings lightness far more than it looks like it should once the ground itself
+        // is very dark -- a resting border/divider should read as a quiet edge of the surface,
+        // not a bright line sitting on top of it (see mumeum's 2026-10-10 report, "Blenderと比べ
+        // ると配色がキモい"). `border-hover` stays clearly stronger for pointer affordance.
+        border: o(opaque_blend(text, ground, 0.12)),
+        divider: o(opaque_blend(text, ground, 0.2)),
         hover: o(hover),
         pressed: o(opaque_blend(accent, ground, 0.5)),
         selected: o(selected),
@@ -205,7 +242,7 @@ fn ground_tokens(ground: RgbColor, text: RgbColor, accent: RgbColor) -> GroundTo
         )),
         accent_soft: o(opaque_blend(accent, ground, 0.35)),
         accent_strong: o(opaque_blend(accent, ground, 0.6)),
-        border_hover: o(opaque_blend(text, ground, 0.6)),
+        border_hover: o(opaque_blend(text, ground, 0.32)),
         destructive_soft: o(opaque_blend(DESTRUCTIVE, ground, 0.2)),
         destructive_border: o(opaque_blend(DESTRUCTIVE, ground, 0.5)),
         success_soft: o(opaque_blend(SUCCESS, ground, 0.2)),
@@ -221,7 +258,71 @@ fn ground_tokens(ground: RgbColor, text: RgbColor, accent: RgbColor) -> GroundTo
 ///   per ground (`on_background`, `on_surface`, `on_raised`), all opaque.
 fn resolve_colors(preset: palette::PalettePreset, accent: RgbColor) -> ColorTokens {
     let composed = palette::compose_palette(preset, accent);
+    let on_bg = ground_tokens(composed.base, composed.text, composed.highlight);
+    let on_surf = ground_tokens(composed.button, composed.text, composed.highlight);
+    let on_raised = ground_tokens(composed.light, composed.text, composed.highlight);
+
+    let primary = Rgba::opaque(composed.highlight);
+    let on_primary = Rgba::opaque(composed.highlighted_text);
+    let primary_container = Rgba::opaque(opaque_blend(composed.highlight, composed.base, 0.25));
+    let on_primary_container = Rgba::opaque(composed.text);
+
+    let secondary = Rgba::opaque(composed.highlight);
+    let on_secondary = Rgba::opaque(composed.highlighted_text);
+    let secondary_container = Rgba::opaque(opaque_blend(composed.highlight, composed.button, 0.15));
+    let on_secondary_container = Rgba::opaque(composed.text);
+
+    let tertiary = Rgba::opaque(opaque_blend(composed.highlight, composed.text, 0.4));
+    let on_tertiary = Rgba::opaque(composed.highlighted_text);
+    let tertiary_container = Rgba::opaque(opaque_blend(composed.highlight, composed.base, 0.15));
+    let on_tertiary_container = Rgba::opaque(composed.text);
+
+    let error = Rgba::opaque(DESTRUCTIVE);
+    let on_error = Rgba::opaque(palette::contrasting_text_color(DESTRUCTIVE));
+    let error_container = Rgba::opaque(opaque_blend(DESTRUCTIVE, composed.base, 0.2));
+    let on_error_container = Rgba::opaque(DESTRUCTIVE);
+
+    let surface_container_lowest = Rgba::opaque(composed.base);
+    let surface_container_low = Rgba::opaque(composed.base);
+    let surface_container = Rgba::opaque(composed.button);
+    let surface_container_high = Rgba::opaque(composed.light);
+    let surface_container_highest = Rgba::opaque(composed.light);
+
+    let on_surface_variant = on_bg.text_secondary;
+    let outline = on_bg.border;
+    let outline_variant = on_bg.divider;
+
     ColorTokens {
+        primary,
+        on_primary,
+        primary_container,
+        on_primary_container,
+
+        secondary,
+        on_secondary,
+        secondary_container,
+        on_secondary_container,
+
+        tertiary,
+        on_tertiary,
+        tertiary_container,
+        on_tertiary_container,
+
+        error,
+        on_error,
+        error_container,
+        on_error_container,
+
+        surface_container_lowest,
+        surface_container_low,
+        surface_container,
+        surface_container_high,
+        surface_container_highest,
+
+        on_surface_variant,
+        outline,
+        outline_variant,
+
         background: Rgba::opaque(composed.base),
         surface: Rgba::opaque(composed.button),
         surface_raised: Rgba::opaque(composed.light),
@@ -235,9 +336,9 @@ fn resolve_colors(preset: palette::PalettePreset, accent: RgbColor) -> ColorToke
         destructive_hover: Rgba::opaque(opaque_blend(WHITE, DESTRUCTIVE, 0.12)),
         destructive_pressed: Rgba::opaque(opaque_blend(BLACK, DESTRUCTIVE, 0.2)),
         success: Rgba::opaque(SUCCESS),
-        on_background: ground_tokens(composed.base, composed.text, composed.highlight),
-        on_surface: ground_tokens(composed.button, composed.text, composed.highlight),
-        on_raised: ground_tokens(composed.light, composed.text, composed.highlight),
+        on_background: on_bg,
+        on_surface: on_surf,
+        on_raised,
     }
 }
 
@@ -328,18 +429,26 @@ pub struct ResolvedTheme {
 /// cheap enough to call again on every settings change rather than patching
 /// individual fields.
 pub fn resolve(settings: &ThemeSettings) -> ResolvedTheme {
-    let accent = settings
-        .accent
-        .unwrap_or_else(|| palette::default_accent_for(&settings.variant));
-    let preset = settings
-        .preset_override
-        .unwrap_or_else(|| palette::preset_by_id(&settings.variant));
+    let colors = match &settings.engine {
+        crate::settings::ThemeEngine::Material(material_settings) => {
+            palette::material::resolve_material_colors(material_settings, ground_tokens)
+        }
+        crate::settings::ThemeEngine::Preset => {
+            let accent = settings
+                .accent
+                .unwrap_or_else(|| palette::default_accent_for(&settings.variant));
+            let preset = settings
+                .preset_override
+                .unwrap_or_else(|| palette::preset_by_id(&settings.variant));
+            resolve_colors(preset, accent)
+        }
+    };
 
     let multiplier = animation_speed_multiplier(settings.animation_speed);
     let duration = |base_ms: f32| scaled_duration(base_ms, multiplier, settings.animations_enabled);
 
     ResolvedTheme {
-        colors: resolve_colors(preset, accent),
+        colors,
         shape: ShapeTokens {
             corner_radius_px: corner_radius_px(settings.corner_radius),
             border_width_px: border_width_px(settings.border_width),
@@ -447,11 +556,7 @@ mod tests {
     #[test]
     fn explicit_accent_and_variant_override_the_defaults() {
         let accent = RgbColor::new(0x11, 0x22, 0x33);
-        let theme = resolve(&ThemeSettings {
-            variant: "catppuccin-mocha".to_string(),
-            accent: Some(accent),
-            ..ThemeSettings::default()
-        });
+        let theme = resolve(&ThemeSettings::preset("catppuccin-mocha", Some(accent)));
         assert_eq!(theme.colors.accent, Rgba::opaque(accent));
         let mocha = palette::preset_by_id("catppuccin-mocha");
         assert_eq!(theme.colors.background, Rgba::opaque(mocha.base));
@@ -459,10 +564,7 @@ mod tests {
 
     #[test]
     fn variant_accent_is_used_when_none_is_given() {
-        let theme = resolve(&ThemeSettings {
-            variant: "catppuccin-mocha".to_string(),
-            ..ThemeSettings::default()
-        });
+        let theme = resolve(&ThemeSettings::preset("catppuccin-mocha", None));
         assert_eq!(
             theme.colors.accent,
             Rgba::opaque(palette::default_accent_for("catppuccin-mocha"))
@@ -470,14 +572,66 @@ mod tests {
     }
 
     #[test]
+    fn material_engine_resolves_all_m3_roles() {
+        let c = resolve(&ThemeSettings::default()).colors;
+        let hex = |r: Rgba| format!("#{:02x}{:02x}{:02x}", r.r, r.g, r.b);
+        println!("primary: {}", hex(c.primary));
+        println!("on-primary: {}", hex(c.on_primary));
+        println!("primary-container: {}", hex(c.primary_container));
+        println!("on-primary-container: {}", hex(c.on_primary_container));
+        println!("secondary: {}", hex(c.secondary));
+        println!("on-secondary: {}", hex(c.on_secondary));
+        println!("secondary-container: {}", hex(c.secondary_container));
+        println!("on-secondary-container: {}", hex(c.on_secondary_container));
+        println!("tertiary: {}", hex(c.tertiary));
+        println!("on-tertiary: {}", hex(c.on_tertiary));
+        println!("tertiary-container: {}", hex(c.tertiary_container));
+        println!("on-tertiary-container: {}", hex(c.on_tertiary_container));
+        println!("error: {}", hex(c.error));
+        println!("on-error: {}", hex(c.on_error));
+        println!("error-container: {}", hex(c.error_container));
+        println!("on-error-container: {}", hex(c.on_error_container));
+        println!("surface-container-lowest: {}", hex(c.surface_container_lowest));
+        println!("surface-container-low: {}", hex(c.surface_container_low));
+        println!("surface-container: {}", hex(c.surface_container));
+        println!("surface-container-high: {}", hex(c.surface_container_high));
+        println!("surface-container-highest: {}", hex(c.surface_container_highest));
+        println!("outline: {}", hex(c.outline));
+        println!("outline-variant: {}", hex(c.outline_variant));
+
+        for variant in [
+            crate::palette::material::MaterialVariant::TonalSpot,
+            crate::palette::material::MaterialVariant::Vivid,
+            crate::palette::material::MaterialVariant::Expressive,
+            crate::palette::material::MaterialVariant::FruitSalad,
+            crate::palette::material::MaterialVariant::Rainbow,
+            crate::palette::material::MaterialVariant::Spritz,
+            crate::palette::material::MaterialVariant::Monochrome,
+            crate::palette::material::MaterialVariant::Content,
+        ] {
+            let settings = ThemeSettings::material(crate::palette::material::MaterialSettings {
+                seed: RgbColor::new(0x42, 0x85, 0xf4), // Google blue
+                variant,
+                is_dark: true,
+                contrast: 0.0,
+            });
+            let theme = resolve(&settings);
+            assert_eq!(theme.colors.primary.a, 255);
+            assert_eq!(theme.colors.on_primary.a, 255);
+            assert_eq!(theme.colors.primary_container.a, 255);
+            assert_eq!(theme.colors.secondary.a, 255);
+            assert_eq!(theme.colors.tertiary.a, 255);
+            assert_eq!(theme.colors.surface_container_lowest.a, 255);
+            assert_eq!(theme.colors.surface_container_high.a, 255);
+            assert_eq!(theme.colors.outline.a, 255);
+        }
+    }
+
+    #[test]
     fn every_token_is_opaque() {
         for scheme in palette::presets::SCHEMES {
             for v in scheme.variants {
-                let c = resolve(&ThemeSettings {
-                    variant: v.id.to_string(),
-                    ..ThemeSettings::default()
-                })
-                .colors;
+                let c = resolve(&ThemeSettings::preset(v.id, None)).colors;
                 for g in [c.on_background, c.on_surface, c.on_raised] {
                     for t in [
                         g.border,
@@ -507,11 +661,7 @@ mod tests {
         let rgb = |t: Rgba| RgbColor::new(t.r, t.g, t.b);
         for scheme in palette::presets::SCHEMES {
             for v in scheme.variants {
-                let c = resolve(&ThemeSettings {
-                    variant: v.id.to_string(),
-                    ..ThemeSettings::default()
-                })
-                .colors;
+                let c = resolve(&ThemeSettings::preset(v.id, None)).colors;
                 for (name, ground, g) in [
                     ("background", c.background, c.on_background),
                     ("surface", c.surface, c.on_surface),
@@ -590,7 +740,7 @@ mod tests {
             })
         };
         let c = resolve(&ThemeSettings::default()).colors;
-        let mapping: [(&str, Rgba); 8] = [
+        let mapping: [(&str, Rgba); 31] = [
             ("danger", c.destructive),
             ("success", c.success),
             ("separator", c.on_background.divider),
@@ -599,6 +749,29 @@ mod tests {
             ("surface", c.surface),
             ("surface-elevated", c.surface_raised),
             ("card-border", c.on_raised.border),
+            ("primary", c.primary),
+            ("on-primary", c.on_primary),
+            ("primary-container", c.primary_container),
+            ("on-primary-container", c.on_primary_container),
+            ("secondary", c.secondary),
+            ("on-secondary", c.on_secondary),
+            ("secondary-container", c.secondary_container),
+            ("on-secondary-container", c.on_secondary_container),
+            ("tertiary", c.tertiary),
+            ("on-tertiary", c.on_tertiary),
+            ("tertiary-container", c.tertiary_container),
+            ("on-tertiary-container", c.on_tertiary_container),
+            ("error", c.error),
+            ("on-error", c.on_error),
+            ("error-container", c.error_container),
+            ("on-error-container", c.on_error_container),
+            ("surface-container-lowest", c.surface_container_lowest),
+            ("surface-container-low", c.surface_container_low),
+            ("surface-container", c.surface_container),
+            ("surface-container-high", c.surface_container_high),
+            ("surface-container-highest", c.surface_container_highest),
+            ("outline", c.outline),
+            ("outline-variant", c.outline_variant),
         ];
         let mut wrong = Vec::new();
         for (name, color) in mapping {
