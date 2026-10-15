@@ -8,6 +8,7 @@ members = [
   "crates/origiri-icons",
   "crates/origiri-mobile",
   "crates/origiri-panes",
+  "crates/origiri-selection",
   "crates/origiri-theme",
   "crates/origiri-viewport",
   "crates/views/richtext",
@@ -31,6 +32,7 @@ origiri-mobile = { path = "crates/origiri-mobile" }
 origiri-panes = { path = "crates/origiri-panes" }
 origiri-richtext = { path = "crates/views/richtext" }
 origiri-richtext-flow = { path = "crates/views/richtext-flow" }
+origiri-selection = { path = "crates/origiri-selection" }
 origiri-theme = { path = "crates/origiri-theme" }
 origiri-viewport = { path = "crates/origiri-viewport" }
 

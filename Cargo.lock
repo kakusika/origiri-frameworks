@@ -3122,6 +3122,10 @@ name = "origiri-richtext-flow"
 version = "0.1.0"
 
 [[package]]
+name = "origiri-selection"
+version = "0.1.0"
+
+[[package]]
 name = "origiri-theme"
 version = "0.1.0"
 dependencies = [
