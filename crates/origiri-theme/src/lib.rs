@@ -23,7 +23,7 @@ mod tokens;
 #[cfg(feature = "os")]
 pub mod os;
 
-pub use palette::material::{MaterialSettings, MaterialVariant};
+pub use palette::material::{MaterialSettings, MaterialSpecVersion, MaterialVariant};
 pub use settings::{AnimationSpeed, BorderWidth, CornerRadius, ThemeEngine, ThemeSettings};
 pub use tokens::{
     AnimationTokens, ColorTokens, GroundTokens, ResolvedTheme, Rgba, ShapeTokens, SpacingTokens,

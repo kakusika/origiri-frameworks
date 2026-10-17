@@ -620,6 +620,7 @@ mod tests {
                 variant,
                 is_dark: true,
                 contrast: 0.0,
+                ..Default::default()
             });
             let theme = resolve(&settings);
             assert_eq!(theme.colors.primary.a, 255);
