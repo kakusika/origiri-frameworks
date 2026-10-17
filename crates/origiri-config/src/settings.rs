@@ -13,11 +13,24 @@ use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
 
-pub fn settings_path(vault_root: &Path) -> PathBuf {
+pub fn vault_settings_path(vault_root: &Path) -> PathBuf {
+    let base = vault_root.join(&crate::identity::app_identity().vault_namespace);
+    let vault_toml = base.join("vault.toml");
+    let legacy = base.join("settings.toml");
+    if !vault_toml.exists() && legacy.exists() {
+        legacy
+    } else {
+        vault_toml
+    }
+}
+
+pub fn vault_settings_save_path(vault_root: &Path) -> PathBuf {
     vault_root
         .join(&crate::identity::app_identity().vault_namespace)
-        .join("settings.toml")
+        .join("vault.toml")
 }
+
+pub use vault_settings_path as settings_path;
 
 /// Where the precomputed background-effect result (see
 /// `cettila-view-settings`'s `background_effects` module) is written to and
@@ -145,7 +158,7 @@ fn load(vault_root: &Path) -> Settings {
 fn save(vault_root: &Path, settings: &Settings) -> io::Result<()> {
     let toml = toml::to_string_pretty(settings)
         .map_err(|err| io::Error::new(io::ErrorKind::InvalidData, err))?;
-    let path = settings_path(vault_root);
+    let path = vault_settings_save_path(vault_root);
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent)?;
     }
@@ -183,7 +196,10 @@ pub fn save_style(vault_root: &Path, style: &str) -> io::Result<()> {
 /// only read once at process startup -- a pick made in the settings screen
 /// takes effect on the next launch.
 pub fn load_status_bar_visible(vault_root: &Path) -> bool {
-    load(vault_root).status_bar_visible.unwrap_or(true)
+    load(vault_root)
+        .status_bar_visible
+        .or_else(|| crate::app::load().status_bar_visible)
+        .unwrap_or(true)
 }
 
 pub fn save_status_bar_visible(vault_root: &Path, visible: bool) -> io::Result<()> {
@@ -195,7 +211,10 @@ pub fn save_status_bar_visible(vault_root: &Path, visible: bool) -> io::Result<(
 /// How often (milliseconds) the status bar re-samples CPU/memory and
 /// recomputes FPS.
 pub fn load_status_bar_refresh_ms(vault_root: &Path) -> u32 {
-    load(vault_root).status_bar_refresh_ms.unwrap_or(1000)
+    load(vault_root)
+        .status_bar_refresh_ms
+        .or_else(|| crate::app::load().status_bar_refresh_ms)
+        .unwrap_or(1000)
 }
 
 pub fn save_status_bar_refresh_ms(vault_root: &Path, ms: u32) -> io::Result<()> {
@@ -206,7 +225,10 @@ pub fn save_status_bar_refresh_ms(vault_root: &Path, ms: u32) -> io::Result<()> 
 
 /// Text editor font size, in points.
 pub fn load_editor_font_point_size(vault_root: &Path) -> f64 {
-    load(vault_root).editor_font_point_size.unwrap_or(11.0)
+    load(vault_root)
+        .editor_font_point_size
+        .or_else(|| crate::app::load().editor_font_point_size)
+        .unwrap_or(11.0)
 }
 
 pub fn save_editor_font_point_size(vault_root: &Path, size: f64) -> io::Result<()> {
@@ -217,7 +239,10 @@ pub fn save_editor_font_point_size(vault_root: &Path, size: f64) -> io::Result<(
 
 /// Whether the text editor shows a line-number gutter.
 pub fn load_editor_show_line_numbers(vault_root: &Path) -> bool {
-    load(vault_root).editor_show_line_numbers.unwrap_or(false)
+    load(vault_root)
+        .editor_show_line_numbers
+        .or_else(|| crate::app::load().editor_show_line_numbers)
+        .unwrap_or(false)
 }
 
 pub fn save_editor_show_line_numbers(vault_root: &Path, show: bool) -> io::Result<()> {
@@ -234,6 +259,7 @@ pub fn save_editor_show_line_numbers(vault_root: &Path, show: bool) -> io::Resul
 pub fn load_corner_radius(vault_root: &Path) -> String {
     load(vault_root)
         .corner_radius
+        .or_else(|| crate::app::load().corner_radius)
         .unwrap_or_else(|| "small".to_string())
 }
 
@@ -252,6 +278,7 @@ pub fn save_corner_radius(vault_root: &Path, preset: &str) -> io::Result<()> {
 pub fn load_border_width(vault_root: &Path) -> String {
     load(vault_root)
         .border_width
+        .or_else(|| crate::app::load().border_width)
         .unwrap_or_else(|| "default".to_string())
 }
 
@@ -271,6 +298,7 @@ pub fn save_border_width(vault_root: &Path, preset: &str) -> io::Result<()> {
 pub fn load_theme_mode(vault_root: &Path) -> String {
     load(vault_root)
         .theme_mode
+        .or_else(|| crate::app::load().theme_mode)
         .unwrap_or_else(|| "system".to_string())
 }
 
@@ -291,6 +319,7 @@ pub fn save_theme_mode(vault_root: &Path, mode: &str) -> io::Result<()> {
 pub fn load_accent_color(vault_root: &Path) -> String {
     load(vault_root)
         .accent_color
+        .or_else(|| crate::app::load().accent_color)
         .unwrap_or_else(|| "#3daee9".to_string())
 }
 
@@ -307,7 +336,9 @@ pub fn save_accent_color(vault_root: &Path, hex: &str) -> io::Result<()> {
 /// font of items created after it's called, and it's applied right after
 /// `QGuiApplication` is constructed, before the QML engine loads anything.
 pub fn load_ui_font_family(vault_root: &Path) -> Option<String> {
-    load(vault_root).ui_font_family
+    load(vault_root)
+        .ui_font_family
+        .or_else(|| crate::app::load().ui_font_family)
 }
 
 pub fn save_ui_font_family(vault_root: &Path, family: &str) -> io::Result<()> {
@@ -319,7 +350,9 @@ pub fn save_ui_font_family(vault_root: &Path, family: &str) -> io::Result<()> {
 /// App-wide UI font point size, or `None` to use the platform default.
 /// Same next-launch-only caveat as `ui_font_family`.
 pub fn load_ui_font_point_size(vault_root: &Path) -> Option<f64> {
-    load(vault_root).ui_font_point_size
+    load(vault_root)
+        .ui_font_point_size
+        .or_else(|| crate::app::load().ui_font_point_size)
 }
 
 pub fn save_ui_font_point_size(vault_root: &Path, size: f64) -> io::Result<()> {
@@ -336,7 +369,10 @@ pub fn save_ui_font_point_size(vault_root: &Path, size: f64) -> io::Result<()> {
 /// so a pick made in the settings screen takes effect right away with no
 /// restart needed.
 pub fn load_network_allowed(vault_root: &Path) -> bool {
-    load(vault_root).network_allowed.unwrap_or(false)
+    load(vault_root)
+        .network_allowed
+        .or_else(|| crate::app::load().network_allowed)
+        .unwrap_or(false)
 }
 
 pub fn save_network_allowed(vault_root: &Path, allowed: bool) -> io::Result<()> {
@@ -450,6 +486,7 @@ pub fn save_background_effect(vault_root: &Path, effect: &BackgroundEffect) -> i
 pub fn load_explorer_alternating_row_colors(vault_root: &Path) -> bool {
     load(vault_root)
         .explorer_alternating_row_colors
+        .or_else(|| crate::app::load().explorer_alternating_row_colors)
         .unwrap_or(true)
 }
 
@@ -468,6 +505,7 @@ pub fn save_explorer_alternating_row_colors(vault_root: &Path, enabled: bool) ->
 pub fn load_animation_speed(vault_root: &Path) -> String {
     load(vault_root)
         .animation_speed
+        .or_else(|| crate::app::load().animation_speed)
         .unwrap_or_else(|| "normal".to_string())
 }
 
@@ -486,7 +524,10 @@ pub fn save_animation_speed(vault_root: &Path, preset: &str) -> io::Result<()> {
 /// `animation_speed`, which only changes how fast an animation plays, not
 /// whether it plays.
 pub fn load_animations_enabled(vault_root: &Path) -> bool {
-    load(vault_root).animations_enabled.unwrap_or(true)
+    load(vault_root)
+        .animations_enabled
+        .or_else(|| crate::app::load().animations_enabled)
+        .unwrap_or(true)
 }
 
 pub fn save_animations_enabled(vault_root: &Path, enabled: bool) -> io::Result<()> {
@@ -500,7 +541,10 @@ pub fn save_animations_enabled(vault_root: &Path, enabled: bool) -> io::Result<(
 /// control heights, icon sizes). Defaults to `1.0` -- no scaling, matching
 /// every size constant's value before this setting existed.
 pub fn load_ui_scale(vault_root: &Path) -> f64 {
-    load(vault_root).ui_scale.unwrap_or(1.0)
+    load(vault_root)
+        .ui_scale
+        .or_else(|| crate::app::load().ui_scale)
+        .unwrap_or(1.0)
 }
 
 /// Persists the chosen UI scale, clamped to a sane range. Like
