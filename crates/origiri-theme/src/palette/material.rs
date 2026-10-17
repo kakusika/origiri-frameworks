@@ -103,7 +103,7 @@ pub fn resolve_material_colors(
     let error_container = get(MaterialDynamicColors::error_container());
     let on_error_container = get(MaterialDynamicColors::on_error_container());
 
-    let surface = get(MaterialDynamicColors::surface());
+    let m3_surface = get(MaterialDynamicColors::surface());
     let on_surface = get(MaterialDynamicColors::on_surface());
     let on_surface_variant = get(MaterialDynamicColors::on_surface_variant());
 
@@ -119,11 +119,14 @@ pub fn resolve_material_colors(
     // Success color (M3 palette key or harmonized green)
     let success = Rgba::opaque(RgbColor::new(0x2e, 0x7d, 0x32));
 
-    // Ground tokens for traditional surfaces
+    // Ground tokens for traditional surfaces:
+    // - `background`: M3 `surface` / `background` (Tone 98 light / Tone 6 dark)
+    // - `surface`: M3 `surface-container` (Tone 94 light / Tone 12 dark)
+    // - `surface_raised`: M3 `surface-container-high` (Tone 92 light / Tone 17 dark)
+    let background_rgb = rgba_to_rgb(m3_surface);
     let surface_rgb = rgba_to_rgb(surface_container);
     let on_surface_rgb = rgba_to_rgb(on_surface);
     let primary_rgb = rgba_to_rgb(primary);
-    let lowest_rgb = rgba_to_rgb(surface_container_lowest);
     let high_rgb = rgba_to_rgb(surface_container_high);
 
     ColorTokens {
@@ -148,7 +151,7 @@ pub fn resolve_material_colors(
         error_container,
         on_error_container,
 
-        surface,
+        surface: surface_container,
         on_surface_variant,
 
         surface_container_lowest,
@@ -161,7 +164,7 @@ pub fn resolve_material_colors(
         outline_variant,
 
         // Aliases / Compatibility roles
-        background: surface_container_lowest,
+        background: m3_surface,
         surface_raised: surface_container_high,
         accent: primary,
         text_on_accent: on_primary,
@@ -173,7 +176,7 @@ pub fn resolve_material_colors(
         destructive_hover: error,
         destructive_pressed: error,
         success,
-        on_background: ground_tokens_fn(lowest_rgb, on_surface_rgb, primary_rgb),
+        on_background: ground_tokens_fn(background_rgb, on_surface_rgb, primary_rgb),
         on_surface: ground_tokens_fn(surface_rgb, on_surface_rgb, primary_rgb),
         on_raised: ground_tokens_fn(high_rgb, on_surface_rgb, primary_rgb),
     }
@@ -183,27 +186,59 @@ pub fn resolve_material_colors(
 mod tests {
     use super::*;
 
+    fn dummy_ground_tokens(_: RgbColor, _: RgbColor, _: RgbColor) -> crate::tokens::GroundTokens {
+        let zero = Rgba::opaque(RgbColor::new(0, 0, 0));
+        crate::tokens::GroundTokens {
+            border: zero,
+            divider: zero,
+            hover: zero,
+            pressed: zero,
+            selected: zero,
+            text_secondary: zero,
+            text_disabled: zero,
+            accent_soft: zero,
+            accent_strong: zero,
+            border_hover: zero,
+            destructive_soft: zero,
+            destructive_border: zero,
+            success_soft: zero,
+            success_border: zero,
+        }
+    }
+
     #[test]
     fn test_material_generation() {
         let settings = MaterialSettings::default();
-        let tokens = resolve_material_colors(&settings, |_, _, _| crate::tokens::GroundTokens {
-            border: Rgba::opaque(RgbColor::new(0, 0, 0)),
-            divider: Rgba::opaque(RgbColor::new(0, 0, 0)),
-            hover: Rgba::opaque(RgbColor::new(0, 0, 0)),
-            pressed: Rgba::opaque(RgbColor::new(0, 0, 0)),
-            selected: Rgba::opaque(RgbColor::new(0, 0, 0)),
-            text_secondary: Rgba::opaque(RgbColor::new(0, 0, 0)),
-            text_disabled: Rgba::opaque(RgbColor::new(0, 0, 0)),
-            accent_soft: Rgba::opaque(RgbColor::new(0, 0, 0)),
-            accent_strong: Rgba::opaque(RgbColor::new(0, 0, 0)),
-            border_hover: Rgba::opaque(RgbColor::new(0, 0, 0)),
-            destructive_soft: Rgba::opaque(RgbColor::new(0, 0, 0)),
-            destructive_border: Rgba::opaque(RgbColor::new(0, 0, 0)),
-            success_soft: Rgba::opaque(RgbColor::new(0, 0, 0)),
-            success_border: Rgba::opaque(RgbColor::new(0, 0, 0)),
-        });
+        let tokens = resolve_material_colors(&settings, dummy_ground_tokens);
         assert_eq!(tokens.primary.a, 255);
         assert_eq!(tokens.tertiary.a, 255);
         assert_eq!(tokens.surface_container_lowest.a, 255);
+    }
+
+    #[test]
+    fn light_theme_background_uses_m3_surface_instead_of_pure_white() {
+        let white = Rgba::opaque(RgbColor::new(0xff, 0xff, 0xff));
+        for seed in [
+            RgbColor::new(0x67, 0x50, 0xa4),
+            RgbColor::new(0x19, 0x71, 0xc2),
+            RgbColor::new(0x0c, 0xa6, 0x78),
+            RgbColor::new(0x2f, 0x9e, 0x44),
+            RgbColor::new(0xf5, 0x9f, 0x00),
+            RgbColor::new(0xe0, 0x31, 0x31),
+        ] {
+            let settings = MaterialSettings {
+                seed,
+                variant: MaterialVariant::TonalSpot,
+                is_dark: false,
+                contrast: 0.0,
+            };
+            let tokens = resolve_material_colors(&settings, dummy_ground_tokens);
+            // `surface_container_lowest` is Tone 100 (#ffffff) in M3 light mode,
+            // while `background` uses M3 `surface` (Tone 98, tinted by the seed).
+            assert_eq!(tokens.surface_container_lowest, white);
+            assert_ne!(tokens.background, white);
+            assert_eq!(tokens.surface, tokens.surface_container);
+            assert_eq!(tokens.surface_raised, tokens.surface_container_high);
+        }
     }
 }
