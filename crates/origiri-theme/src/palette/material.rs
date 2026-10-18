@@ -156,23 +156,36 @@ pub fn resolve_material_colors(
     // Success color (M3 palette key or harmonized green)
     let success = Rgba::opaque(RgbColor::new(0x2e, 0x7d, 0x32));
 
-    // Ground tokens for traditional surfaces:
-    // - In light mode, `surface_container_low` (Tone 96 / Tone 95 in Vibrant, with
-    //   Spec2025 chroma multipliers) serves as `background` so palette styles have
-    //   distinct, perceptible tonal backgrounds while staying clearly lighter than
-    //   `surface` (`surface_container`) and `surface_raised` (`surface_container_high`).
-    // - In dark mode, M3 `surface` (Tone 4 in Spec2025 / Tone 6 in Spec2021) serves
-    //   as `background`.
-    let background = if settings.is_dark {
-        m3_surface
+    // Ground tokens for Material 3 Expressive (Spec2025) surfaces:
+    // - Light mode uses Android 16 / M3 Expressive grouped-card hierarchy:
+    //   `background` = `surface_container` (tinted Tone 94 canvas),
+    //   `surface` = `surface_container_low` (Tone 96 intermediate chrome),
+    //   `surface_raised` = `surface_container_lowest` (crisp pure-white Tone 100 cards).
+    // - Dark mode uses:
+    //   `background` = M3 `surface` (Tone 4),
+    //   `surface` = `surface_container` (Tone 9),
+    //   `surface_raised` = `surface_container_highest` (tinted Tone 15 cards).
+    let (background, surface_role, surface_raised) = if settings.is_dark {
+        (m3_surface, surface_container, surface_container_highest)
     } else {
-        surface_container_low
+        (
+            surface_container,
+            surface_container_low,
+            surface_container_lowest,
+        )
     };
     let background_rgb = rgba_to_rgb(background);
-    let surface_rgb = rgba_to_rgb(surface_container);
+    let surface_rgb = rgba_to_rgb(surface_role);
     let on_surface_rgb = rgba_to_rgb(on_surface);
     let primary_rgb = rgba_to_rgb(primary);
-    let high_rgb = rgba_to_rgb(surface_container_high);
+    let raised_rgb = rgba_to_rgb(surface_raised);
+
+    let with_m3_tokens = |mut g: GroundTokens| {
+        g.text_secondary = on_surface_variant;
+        g.divider = outline_variant;
+        g.border = outline;
+        g
+    };
 
     ColorTokens {
         // M3 Semantic Roles
@@ -196,7 +209,7 @@ pub fn resolve_material_colors(
         error_container,
         on_error_container,
 
-        surface: surface_container,
+        surface: surface_role,
         on_surface_variant,
 
         surface_container_lowest,
@@ -210,7 +223,7 @@ pub fn resolve_material_colors(
 
         // Aliases / Compatibility roles
         background,
-        surface_raised: surface_container_high,
+        surface_raised,
         accent: primary,
         text_on_accent: on_primary,
         text_on_destructive: on_error,
@@ -221,9 +234,9 @@ pub fn resolve_material_colors(
         destructive_hover: error,
         destructive_pressed: error,
         success,
-        on_background: ground_tokens_fn(background_rgb, on_surface_rgb, primary_rgb),
-        on_surface: ground_tokens_fn(surface_rgb, on_surface_rgb, primary_rgb),
-        on_raised: ground_tokens_fn(high_rgb, on_surface_rgb, primary_rgb),
+        on_background: with_m3_tokens(ground_tokens_fn(background_rgb, on_surface_rgb, primary_rgb)),
+        on_surface: with_m3_tokens(ground_tokens_fn(surface_rgb, on_surface_rgb, primary_rgb)),
+        on_raised: with_m3_tokens(ground_tokens_fn(raised_rgb, on_surface_rgb, primary_rgb)),
     }
 }
 
@@ -264,7 +277,7 @@ mod tests {
     fn light_theme_background_differs_across_palette_styles_in_spec2025() {
         let white = Rgba::opaque(RgbColor::new(0xff, 0xff, 0xff));
         let seed = RgbColor::new(0x67, 0x50, 0xa4);
-        let bg_for = |variant: MaterialVariant| {
+        let tokens_for = |variant: MaterialVariant| {
             resolve_material_colors(
                 &MaterialSettings {
                     seed,
@@ -275,18 +288,63 @@ mod tests {
                 },
                 dummy_ground_tokens,
             )
-            .background
         };
-        let tonal_spot = bg_for(MaterialVariant::TonalSpot);
-        let vivid = bg_for(MaterialVariant::Vivid);
-        let expressive = bg_for(MaterialVariant::Expressive);
-        let spritz = bg_for(MaterialVariant::Spritz);
-        let monochrome = bg_for(MaterialVariant::Monochrome);
+        let tonal_spot = tokens_for(MaterialVariant::TonalSpot);
+        let vivid = tokens_for(MaterialVariant::Vivid);
+        let expressive = tokens_for(MaterialVariant::Expressive);
+        let spritz = tokens_for(MaterialVariant::Spritz);
+        let monochrome = tokens_for(MaterialVariant::Monochrome);
 
-        assert_ne!(tonal_spot, white);
-        assert_ne!(tonal_spot, vivid);
-        assert_ne!(tonal_spot, expressive);
-        assert_ne!(tonal_spot, spritz);
-        assert_ne!(tonal_spot, monochrome);
+        assert_ne!(tonal_spot.background, white);
+        assert_eq!(tonal_spot.surface_raised, white);
+        assert_ne!(tonal_spot.background, vivid.background);
+        assert_ne!(tonal_spot.background, expressive.background);
+        assert_ne!(tonal_spot.background, spritz.background);
+        assert_ne!(tonal_spot.background, monochrome.background);
+    }
+
+    #[test]
+    fn spec2025_contrast_adjusts_m3_ground_and_accent_tokens() {
+        let seed = RgbColor::new(0x67, 0x50, 0xa4);
+        let resolve_at = |is_dark: bool, contrast: f64| {
+            resolve_material_colors(
+                &MaterialSettings {
+                    seed,
+                    variant: MaterialVariant::TonalSpot,
+                    is_dark,
+                    contrast,
+                    spec_version: MaterialSpecVersion::Spec2025,
+                },
+                dummy_ground_tokens,
+            )
+        };
+
+        for is_dark in [false, true] {
+            let std_c = resolve_at(is_dark, 0.0);
+            let med_c = resolve_at(is_dark, 0.5);
+            let high_c = resolve_at(is_dark, 1.0);
+
+            assert_ne!(std_c.on_background.divider, med_c.on_background.divider);
+            assert_ne!(med_c.on_background.divider, high_c.on_background.divider);
+            assert_ne!(std_c.on_background.border, high_c.on_background.border);
+            assert_ne!(
+                std_c.on_background.text_secondary,
+                high_c.on_background.text_secondary
+            );
+            assert_ne!(std_c.primary_container, high_c.primary_container);
+        }
+
+        // Light mode `on_surface_variant` steps at both Medium (0.5) and High (1.0).
+        let light_std = resolve_at(false, 0.0);
+        let light_med = resolve_at(false, 0.5);
+        let light_high = resolve_at(false, 1.0);
+        assert_ne!(
+            light_std.on_background.text_secondary,
+            light_med.on_background.text_secondary
+        );
+        assert_ne!(
+            light_med.on_background.text_secondary,
+            light_high.on_background.text_secondary
+        );
     }
 }
