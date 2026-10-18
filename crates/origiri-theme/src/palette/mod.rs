@@ -67,38 +67,52 @@ pub struct PalettePreset {
     pub light: RgbColor,
 }
 
-/// Origiri Orchid Light Preset (pale orchid whites with a deep plum text).
+/// Origiri Shiomusubi Light Preset (warm rice whites with deep sesame-charcoal text).
 pub const LIGHT_PRESET: PalettePreset = PalettePreset {
-    window: RgbColor::new(0xf5, 0xed, 0xf8),
-    window_text: RgbColor::new(0x2b, 0x12, 0x35),
-    base: RgbColor::new(0xfc, 0xf8, 0xff),
-    alternate_base: RgbColor::new(0xeb, 0xde, 0xf2),
-    text: RgbColor::new(0x2b, 0x12, 0x35),
-    button: RgbColor::new(0xf5, 0xed, 0xf8),
-    button_text: RgbColor::new(0x2b, 0x12, 0x35),
+    window: RgbColor::new(0xf3, 0xf0, 0xe8),
+    window_text: RgbColor::new(0x23, 0x22, 0x20),
+    base: RgbColor::new(0xfc, 0xfb, 0xf9),
+    alternate_base: RgbColor::new(0xea, 0xe6, 0xdd),
+    text: RgbColor::new(0x23, 0x22, 0x20),
+    button: RgbColor::new(0xf3, 0xf0, 0xe8),
+    button_text: RgbColor::new(0x23, 0x22, 0x20),
     tooltip_base: RgbColor::new(0xff, 0xff, 0xff),
-    tooltip_text: RgbColor::new(0x2b, 0x12, 0x35),
+    tooltip_text: RgbColor::new(0x23, 0x22, 0x20),
     light: RgbColor::new(0xff, 0xff, 0xff),
 };
 
-/// Origiri Aubergine Dark Preset (deep violet-black base, plum raised
-/// surfaces, warm lavender-white text). `light` is the raised-surface
-/// shade, one step up from `button` (the chrome).
+/// Origiri Norimusubi Dark Preset (deepest roasted nori black base, nori-slate chrome,
+/// and warm rice-white text). `light` is the raised-surface shade, one step up from `button`.
 pub const DARK_PRESET: PalettePreset = PalettePreset {
-    window: RgbColor::new(0x1e, 0x12, 0x29),
-    window_text: RgbColor::new(0xf4, 0xea, 0xf8),
-    base: RgbColor::new(0x15, 0x0c, 0x1d),
-    alternate_base: RgbColor::new(0x2c, 0x1a, 0x3b),
-    text: RgbColor::new(0xf4, 0xea, 0xf8),
-    button: RgbColor::new(0x21, 0x14, 0x2d),
-    button_text: RgbColor::new(0xf4, 0xea, 0xf8),
-    tooltip_base: RgbColor::new(0x2c, 0x1a, 0x3b),
-    tooltip_text: RgbColor::new(0xf4, 0xea, 0xf8),
-    light: RgbColor::new(0x34, 0x20, 0x4a),
+    window: RgbColor::new(0x0e, 0x11, 0x0f),
+    window_text: RgbColor::new(0xf4, 0xf5, 0xf3),
+    base: RgbColor::new(0x07, 0x09, 0x08),
+    alternate_base: RgbColor::new(0x16, 0x1a, 0x17),
+    text: RgbColor::new(0xf4, 0xf5, 0xf3),
+    button: RgbColor::new(0x1c, 0x22, 0x1e),
+    button_text: RgbColor::new(0xf4, 0xf5, 0xf3),
+    tooltip_base: RgbColor::new(0x16, 0x1a, 0x17),
+    tooltip_text: RgbColor::new(0xf4, 0xf5, 0xf3),
+    light: RgbColor::new(0x2a, 0x32, 0x2c),
 };
 
-/// Origiri's signature crimson accent, set against the violet surfaces.
-pub const DEFAULT_ACCENT: RgbColor = RgbColor::new(0xd1, 0x2a, 0x55);
+/// Origiri Norimusubi White Rice Card Preset (bicolor onigiri: deepest roasted nori
+/// black background, fluffy white rice cards/surfaces, and deep charcoal text).
+pub const RICE_CARD_PRESET: PalettePreset = PalettePreset {
+    window: RgbColor::new(0x0e, 0x11, 0x0f),
+    window_text: RgbColor::new(0xf4, 0xf5, 0xf3),
+    base: RgbColor::new(0x07, 0x09, 0x08),
+    alternate_base: RgbColor::new(0x16, 0x1a, 0x17),
+    text: RgbColor::new(0x23, 0x22, 0x20),
+    button: RgbColor::new(0xfc, 0xfb, 0xf9),
+    button_text: RgbColor::new(0x23, 0x22, 0x20),
+    tooltip_base: RgbColor::new(0x16, 0x1a, 0x17),
+    tooltip_text: RgbColor::new(0xf4, 0xf5, 0xf3),
+    light: RgbColor::new(0xff, 0xff, 0xff),
+};
+
+/// Origiri's signature umeboshi (pickled plum) red accent, evoking the center of an onigiri.
+pub const DEFAULT_ACCENT: RgbColor = RgbColor::new(0xd4, 0x38, 0x38);
 
 /// Selects a preset by the same flat id `theme_mode`/`ThemeSettings`
 /// persist (e.g. `"dark"`, `"catppuccin-mocha"`) -- see `presets::SCHEMES`
@@ -181,9 +195,9 @@ pub struct ComposedPalette {
 }
 
 /// Reused rather than inventing new literals: `LIGHT_PRESET.window_text`.
-const NEAR_BLACK: RgbColor = RgbColor::new(0x1a, 0x1b, 0x2d);
+const NEAR_BLACK: RgbColor = RgbColor::new(0x23, 0x22, 0x20);
 /// Reused rather than inventing new literals: `DARK_PRESET.text`.
-const NEAR_WHITE: RgbColor = RgbColor::new(0xf1, 0xf3, 0xf9);
+const NEAR_WHITE: RgbColor = RgbColor::new(0xf4, 0xf5, 0xf3);
 
 /// Perceptual luminance (0..255, ITU BT.601 weights) above which black text
 /// reads better than white on a solid fill of this color. 150 is chosen

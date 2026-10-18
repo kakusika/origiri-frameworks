@@ -258,9 +258,24 @@ fn ground_tokens(ground: RgbColor, text: RgbColor, accent: RgbColor) -> GroundTo
 ///   per ground (`on_background`, `on_surface`, `on_raised`), all opaque.
 fn resolve_colors(preset: palette::PalettePreset, accent: RgbColor) -> ColorTokens {
     let composed = palette::compose_palette(preset, accent);
-    let on_bg = ground_tokens(composed.base, composed.text, composed.highlight);
-    let on_surf = ground_tokens(composed.button, composed.text, composed.highlight);
-    let on_raised = ground_tokens(composed.light, composed.text, composed.highlight);
+    let bg_text = if contrast_ratio(composed.base, composed.text) >= 4.5 {
+        composed.text
+    } else {
+        palette::contrasting_text_color(composed.base)
+    };
+    let surf_text = if contrast_ratio(composed.button, composed.button_text) >= 4.5 {
+        composed.button_text
+    } else {
+        composed.text
+    };
+    let raised_text = if contrast_ratio(composed.light, composed.button_text) >= 4.5 {
+        composed.button_text
+    } else {
+        composed.text
+    };
+    let on_bg = ground_tokens(composed.base, bg_text, composed.highlight);
+    let on_surf = ground_tokens(composed.button, surf_text, composed.highlight);
+    let on_raised = ground_tokens(composed.light, raised_text, composed.highlight);
 
     let primary = Rgba::opaque(composed.highlight);
     let on_primary = Rgba::opaque(composed.highlighted_text);

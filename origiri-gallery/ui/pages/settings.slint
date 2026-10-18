@@ -28,8 +28,8 @@ export component SettingsPage inherits Rectangle {
     callback set-anim-speed(string);
     callback reset-defaults();
 
-    property <[string]> accent-hexes: ["#4772b3", "#ed8e26", "#d12a55", "#10b981"];
-    property <[color]> accent-colors: [#4772b3, #ed8e26, #d12a55, #10b981];
+    property <[string]> accent-hexes: ["#4772b3", "#ed8e26", "#d43838", "#10b981"];
+    property <[color]> accent-colors: [#4772b3, #ed8e26, #d43838, #10b981];
 
     Flickable {
         x: 0px;
@@ -148,6 +148,22 @@ export component SettingsPage inherits Rectangle {
                     }
                 }
 
+                if root.current-scheme == "origiri": Rectangle {
+                    background: Tokens.surface-raised;
+                    border-radius: Tokens.corner-radius;
+
+                    VerticalLayout {
+                        padding: Tokens.spacing-medium;
+
+                        Text {
+                            text: "Origiriテーマ: おにぎりをモチーフにした配色。ライトは「塩むすび」、ダークは上質な焼き海苔の漆黒に米粒トーンの「海苔むすび」、さらに漆黒海苔の上に白いご飯が乗るバイカラーの「海苔むすび (白米カード)」も選べます。アクセントは紀州南高梅の真紅 (#d43838) です。";
+                            color: Tokens.text-secondary-on-raised;
+                            font-size: Tokens.font-size-small;
+                            wrap: word-wrap;
+                        }
+                    }
+                }
+
                 if root.current-scheme == "blender": Rectangle {
                     background: Tokens.surface-raised;
                     border-radius: Tokens.corner-radius;
@@ -174,7 +190,7 @@ export component SettingsPage inherits Rectangle {
                     spacing: Tokens.spacing-small;
 
                     AppButton {
-                        text: "ダーク (Dark)";
+                        text: root.current-scheme == "origiri" ? "海苔むすび (ダーク)" : "ダーク (Dark)";
                         primary: root.current-variant == "dark";
                         clicked => {
                             root.set-variant("dark");
@@ -182,8 +198,17 @@ export component SettingsPage inherits Rectangle {
                         }
                     }
 
+                    if root.current-scheme == "origiri": AppButton {
+                        text: "海苔むすび (白米カード)";
+                        primary: root.current-variant == "origiri-rice-card";
+                        clicked => {
+                            root.set-variant("origiri-rice-card");
+                            root.status = "Variant: 海苔むすび (白米カード)";
+                        }
+                    }
+
                     AppButton {
-                        text: "ライト (Light)";
+                        text: root.current-scheme == "origiri" ? "塩むすび (ライト)" : "ライト (Light)";
                         primary: root.current-variant == "light";
                         clicked => {
                             root.set-variant("light");

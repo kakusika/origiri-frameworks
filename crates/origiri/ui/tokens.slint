@@ -9,71 +9,71 @@
 // happens -- they mirror `origiri-theme`'s `ColorTokens`/`ShapeTokens`/
 // `SpacingTokens` 1:1; keep both in sync by hand if either changes.
 export global Tokens {
-    // -- Colors (Origiri Aubergine & Crimson Palette; the dark preset resolved) --
+    // -- Colors (Origiri Norimusubi & Umeboshi Palette; the dark preset resolved) --
     // Every color is opaque. The three grounds come first; what is drawn on a
     // ground (borders, hover, selection, quiet text, accent washes) is
     // declared once per ground -- no suffix for `background`, `-on-surface`
     // for `surface`, `-on-raised` for `surface-raised` -- already blended
     // against it, so a view picks the set for the ground it sits on and
     // never tints a color at the point of use.
-    in-out property <color> background: #150c1d;
-    in-out property <color> surface: #21142d;
-    in-out property <color> surface-raised: #34204a;
-    in-out property <color> accent: #d12a55;
-    in-out property <color> text-on-accent: #f1f3f9;
-    in-out property <color> text-on-destructive: #f1f3f9;
-    in-out property <color> text-primary: #f4eaf8;
+    in-out property <color> background: #070908;
+    in-out property <color> surface: #1c221e;
+    in-out property <color> surface-raised: #2a322c;
+    in-out property <color> accent: #d43838;
+    in-out property <color> text-on-accent: #f4f5f3;
+    in-out property <color> text-on-destructive: #f4f5f3;
+    in-out property <color> text-primary: #f4f5f3;
     in-out property <color> destructive: #da4453;
-    in-out property <color> accent-hover: #d74469;
-    in-out property <color> accent-pressed: #a72244;
+    in-out property <color> accent-hover: #d95050;
+    in-out property <color> accent-pressed: #aa2d2d;
     in-out property <color> destructive-hover: #de5a68;
     in-out property <color> destructive-pressed: #ae3642;
     in-out property <color> success: #10b981;
 
-    in-out property <color> border: #302737;
-    in-out property <color> border-hover: #5c5363;
-    in-out property <color> divider: #423849;
-    in-out property <color> hover: #311125;
-    in-out property <color> pressed: #731b39;
-    in-out property <color> selected: #44142b;
-    in-out property <color> text-secondary: #a69cab;
-    in-out property <color> text-disabled: #797080;
-    in-out property <color> accent-soft: #571731;
-    in-out property <color> accent-strong: #861e3f;
-    in-out property <color> destructive-soft: #3c1728;
-    in-out property <color> destructive-border: #782838;
-    in-out property <color> success-soft: #142f31;
-    in-out property <color> success-border: #13634f;
+    in-out property <color> border: #232524;
+    in-out property <color> border-hover: #535553;
+    in-out property <color> divider: #363837;
+    in-out property <color> hover: #26100f;
+    in-out property <color> pressed: #6e2120;
+    in-out property <color> selected: #3a1514;
+    in-out property <color> text-secondary: #a1a2a1;
+    in-out property <color> text-disabled: #727372;
+    in-out property <color> accent-soft: #4f1919;
+    in-out property <color> accent-strong: #822525;
+    in-out property <color> destructive-soft: #311517;
+    in-out property <color> destructive-border: #71272e;
+    in-out property <color> success-soft: #092c20;
+    in-out property <color> success-border: #0c6145;
 
-    in-out property <color> border-on-surface: #3a2e45;
-    in-out property <color> border-hover-on-surface: #65586e;
-    in-out property <color> divider-on-surface: #4b3f56;
-    in-out property <color> hover-on-surface: #3b1733;
-    in-out property <color> pressed-on-surface: #791f41;
-    in-out property <color> selected-on-surface: #4d1a37;
-    in-out property <color> text-secondary-on-surface: #aa9fb1;
-    in-out property <color> text-disabled-on-surface: #807488;
-    in-out property <color> accent-soft-on-surface: #5f1c3b;
-    in-out property <color> accent-strong-on-surface: #8b2145;
-    in-out property <color> destructive-soft-on-surface: #461e35;
-    in-out property <color> destructive-border-on-surface: #7e2c40;
-    in-out property <color> success-soft-on-surface: #1e353e;
-    in-out property <color> success-border-on-surface: #196757;
+    in-out property <color> border-on-surface: #363b38;
+    in-out property <color> border-hover-on-surface: #616662;
+    in-out property <color> divider-on-surface: #474c49;
+    in-out property <color> hover-on-surface: #382522;
+    in-out property <color> pressed-on-surface: #782d2b;
+    in-out property <color> selected-on-surface: #4a2825;
+    in-out property <color> text-secondary-on-surface: #a8aba8;
+    in-out property <color> text-disabled-on-surface: #7d817e;
+    in-out property <color> accent-soft-on-surface: #5c2a27;
+    in-out property <color> accent-strong-on-surface: #8a2f2e;
+    in-out property <color> destructive-soft-on-surface: #422929;
+    in-out property <color> destructive-border-on-surface: #7b3339;
+    in-out property <color> success-soft-on-surface: #1a4032;
+    in-out property <color> success-border-on-surface: #166e50;
 
-    in-out property <color> border-on-raised: #4b385f;
-    in-out property <color> border-hover-on-raised: #716182;
-    in-out property <color> divider-on-raised: #5a486d;
-    in-out property <color> hover-on-raised: #4c224c;
-    in-out property <color> pressed-on-raised: #832550;
-    in-out property <color> selected-on-raised: #5b234d;
-    in-out property <color> text-secondary-on-raised: #b1a3bb;
-    in-out property <color> text-disabled-on-raised: #8e7f9c;
-    in-out property <color> accent-soft-on-raised: #6b244e;
-    in-out property <color> accent-strong-on-raised: #922651;
-    in-out property <color> destructive-soft-on-raised: #55274c;
-    in-out property <color> destructive-border-on-raised: #87324f;
-    in-out property <color> success-soft-on-raised: #2d3f55;
-    in-out property <color> success-border-on-raised: #226d66;
+    in-out property <color> border-on-raised: #424944;
+    in-out property <color> border-hover-on-raised: #6b706c;
+    in-out property <color> divider-on-raised: #525954;
+    in-out property <color> hover-on-raised: #44332e;
+    in-out property <color> pressed-on-raised: #7f3532;
+    in-out property <color> selected-on-raised: #55342f;
+    in-out property <color> text-secondary-on-raised: #adb1ad;
+    in-out property <color> text-disabled-on-raised: #858a86;
+    in-out property <color> accent-soft-on-raised: #663430;
+    in-out property <color> accent-strong-on-raised: #903633;
+    in-out property <color> destructive-soft-on-raised: #4d3634;
+    in-out property <color> destructive-border-on-raised: #823b40;
+    in-out property <color> success-soft-on-raised: #254d3d;
+    in-out property <color> success-border-on-raised: #1d7657;
 
     // -- Spacing --
     in-out property <length> spacing-small: 4px;

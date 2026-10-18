@@ -579,9 +579,14 @@ fn main() -> Result<(), slint::PlatformError> {
         let apply_fn = apply_theme_fn.clone();
         let app_weak = app.as_weak();
         app.on_set_variant(move |variant_type| {
-            let is_dark = variant_type == "dark";
-            *current_is_dark.borrow_mut() = is_dark;
-            let var = resolve_variant(&current_scheme.borrow(), is_dark);
+            let var = if variant_type == "origiri-rice-card" {
+                *current_is_dark.borrow_mut() = true;
+                "origiri-rice-card"
+            } else {
+                let is_dark = variant_type == "dark";
+                *current_is_dark.borrow_mut() = is_dark;
+                resolve_variant(&current_scheme.borrow(), is_dark)
+            };
             theme_settings.borrow_mut().variant = var.to_string();
             if let Some(app) = app_weak.upgrade() {
                 app.set_settings_variant(variant_type);
