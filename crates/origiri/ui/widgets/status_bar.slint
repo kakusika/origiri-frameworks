@@ -29,9 +29,9 @@ export component StatusBar inherits Rectangle {
                 width: 8px;
                 height: 8px;
                 border-radius: 4px;
-                background: root.status-type == "busy" ? #f59e0b :
+                background: root.status-type == "busy" ? Tokens.warning :
                     root.status-type == "error" ? Tokens.destructive :
-                    root.status-type == "success" ? #10b981 :
+                    root.status-type == "success" ? Tokens.success :
                     Tokens.accent;
             }
 

@@ -1,0 +1,62 @@
+import { Tokens } from "@origiri/tokens.slint";
+
+// Compact selectable capsule with label, optional icon, active highlight, hover, and click callback.
+// Used for filters, categories, mode switches, and inline tags.
+export component Chip inherits Rectangle {
+    in property <string> text;
+    in property <image> icon;
+    in property <bool> active: false;
+    in property <bool> enabled: true;
+    callback clicked();
+
+    height: 24px;
+    width: max(56px, content.preferred-width + Tokens.spacing-medium * 2);
+    border-radius: Tokens.corner-radius;
+    border-width: Tokens.border-width;
+    border-color: !root.enabled
+        ? Tokens.border-on-surface
+        : root.active
+            ? Tokens.accent
+            : (touch.has-hover ? Tokens.border-hover-on-surface : Tokens.border-on-surface);
+    background: !root.enabled
+        ? Tokens.surface
+        : root.active
+            ? Tokens.selected-on-surface
+            : (touch.pressed
+                ? Tokens.pressed-on-surface
+                : (touch.has-hover ? Tokens.hover-on-surface : Tokens.surface));
+
+    animate background { duration: Tokens.anim-very-short * 1ms; }
+    animate border-color { duration: Tokens.anim-very-short * 1ms; }
+
+    content := HorizontalLayout {
+        padding-left: Tokens.spacing-medium;
+        padding-right: Tokens.spacing-medium;
+        spacing: Tokens.spacing-small;
+        alignment: center;
+
+        if root.icon.width > 0: Image {
+            source: root.icon;
+            width: 14px;
+            height: 14px;
+            y: (parent.height - self.height) / 2;
+        }
+
+        label := Text {
+            text: root.text;
+            color: !root.enabled
+                ? Tokens.text-disabled-on-surface
+                : (root.active ? Tokens.accent : (touch.has-hover ? Tokens.text-primary : Tokens.text-secondary-on-surface));
+            font-size: Tokens.font-size-small;
+            font-weight: root.active ? 600 : 400;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+
+    touch := TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: root.enabled ? pointer : default;
+        clicked => { root.clicked(); }
+    }
+}

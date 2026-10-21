@@ -10,6 +10,7 @@ import {
     CollapsibleSection,
     SidebarCategoryList,
     CheckBox,
+    Chip,
     RadioButton,
     AppTextField,
     AppTextArea,
@@ -35,6 +36,7 @@ export component FoundationPage inherits Rectangle {
     property <int> demo-radio: 0;
     property <string> demo-input: "Origiri Slint UI";
     property <float> demo-progress: 0.68;
+    property <string> selected-chip: "Notes";
     property <int> demo-button-group: 0;
     property <int> demo-tab: 0;
     property <int> demo-sidebar-idx: 0;
@@ -407,10 +409,11 @@ export component FoundationPage inherits Rectangle {
                     padding-top: Tokens.spacing-small;
 
                     // Badges & Progress
+                    // Badges, Progress & Chips
                     VerticalLayout {
                         spacing: Tokens.spacing-small;
                         Text {
-                            text: "ProgressBar & Badges";
+                            text: "ProgressBar (Determinate & Indeterminate)";
                             font-weight: 600;
                             font-size: Tokens.font-size-small;
                             color: Tokens.text-secondary;
@@ -418,6 +421,45 @@ export component FoundationPage inherits Rectangle {
 
                         ProgressBar {
                             progress: root.demo-progress;
+                        }
+
+                        ProgressBar {
+                            indeterminate: true;
+                        }
+
+                        Text {
+                            text: "Chips & Badges";
+                            font-weight: 600;
+                            font-size: Tokens.font-size-small;
+                            color: Tokens.text-secondary;
+                        }
+
+                        HorizontalLayout {
+                            spacing: Tokens.spacing-small;
+                            alignment: start;
+
+                            Chip {
+                                text: "Notes";
+                                active: root.selected-chip == "Notes";
+                                clicked => { root.selected-chip = "Notes"; }
+                            }
+
+                            Chip {
+                                text: "Images";
+                                active: root.selected-chip == "Images";
+                                clicked => { root.selected-chip = "Images"; }
+                            }
+
+                            Chip {
+                                text: "Canvas";
+                                active: root.selected-chip == "Canvas";
+                                clicked => { root.selected-chip = "Canvas"; }
+                            }
+
+                            Chip {
+                                text: "Disabled";
+                                enabled: false;
+                            }
                         }
 
                         HorizontalLayout {

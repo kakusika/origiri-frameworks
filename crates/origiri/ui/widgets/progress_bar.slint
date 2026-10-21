@@ -12,14 +12,18 @@ export component ProgressBar inherits Rectangle {
     clip: true;
 
     fill := Rectangle {
-        x: 0px;
+        x: root.indeterminate
+            ? (mod(animation-tick() / 1.1s, 1.0) * (parent.width * 1.3) - self.width)
+            : 0px;
         y: 0px;
-        width: parent.width * max(0.0, min(1.0, root.progress));
+        width: root.indeterminate
+            ? (parent.width * 0.3)
+            : (parent.width * max(0.0, min(1.0, root.progress)));
         height: parent.height;
         border-radius: parent.height / 2;
         background: Tokens.accent;
         animate width {
-            duration: Tokens.anim-short * 1ms;
+            duration: root.indeterminate ? 0ms : (Tokens.anim-short * 1ms);
             easing: ease-out;
         }
     }
