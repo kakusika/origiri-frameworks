@@ -15,7 +15,11 @@ export struct BreadcrumbSegment {
 
 export component Breadcrumb inherits Rectangle {
     in property <[BreadcrumbSegment]> segments: [];
+    in property <bool> enable-drop: false;
+
     callback navigated(string);
+    callback can-drop(string, DropEvent) -> DragAction;
+    callback dropped(string, DropEvent) -> DragAction;
 
     clip: true;
 
@@ -34,22 +38,34 @@ export component Breadcrumb inherits Rectangle {
                 spacing: 2px;
                 alignment: center;
 
-                seg-touch := TouchArea {
+                crumb-drop := DropArea {
+                    enabled: root.enable-drop;
                     width: label.preferred-width + Tokens.spacing-medium * 2;
-                    mouse-cursor: pointer;
-                    clicked => { root.navigated(seg.path); }
+                    height: 26px;
+
+                    can-drop(event) => {
+                        return root.can-drop(seg.path, event);
+                    }
+                    dropped(event) => {
+                        return root.dropped(seg.path, event);
+                    }
 
                     Rectangle {
                         width: parent.width;
-                        height: 26px;
-                        background: seg-touch.has-hover ? Tokens.hover : transparent;
+                        height: parent.height;
+                        background: (seg-touch.has-hover || (root.enable-drop && crumb-drop.has-drag)) ? Tokens.hover : transparent;
                         border-radius: Tokens.corner-radius;
 
                         animate background { duration: 80ms; }
 
+                        seg-touch := TouchArea {
+                            mouse-cursor: pointer;
+                            clicked => { root.navigated(seg.path); }
+                        }
+
                         label := Text {
                             text: seg.label;
-                            color: seg-touch.has-hover ? Tokens.accent : (i == root.segments.length - 1 ? Tokens.text-primary : Tokens.text-secondary);
+                            color: (seg-touch.has-hover || (root.enable-drop && crumb-drop.has-drag)) ? Tokens.accent : (i == root.segments.length - 1 ? Tokens.text-primary : Tokens.text-secondary);
                             font-size: Tokens.font-size-normal;
                             font-weight: i == root.segments.length - 1 ? 600 : 400;
                             vertical-alignment: center;

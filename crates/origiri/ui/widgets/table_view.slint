@@ -1,0 +1,128 @@
+import { ListView } from "std-widgets.slint";
+import { Tokens } from "@origiri/tokens.slint";
+
+export struct TableRow {
+    cells: [string],
+}
+
+// TableView: virtualized data table with resizable columns, sortable headers,
+// alternating zebra striping, row selection, and horizontal scrolling.
+export component TableView inherits Rectangle {
+    in property <[string]> columns: [];
+    in property <[length]> widths: [];
+    in property <length> total-width: 0px;
+    in property <[TableRow]> rows: [];
+    in property <int> sort-column: -1;
+    in property <bool> sort-descending: false;
+    in property <int> selected-row: -1;
+    in property <length> row-height: 28px;
+    in property <length> header-height: 30px;
+
+    callback sort-requested(int);
+    callback column-resized(int, length);
+    callback row-clicked(int);
+    callback row-double-clicked(int);
+
+    clip: true;
+    background: Tokens.surface;
+
+    Flickable {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: parent.height;
+        content-width: max(parent.width, root.total-width);
+        content-height: self.height;
+
+        VerticalLayout {
+            width: max(root.total-width, parent.content-width);
+            height: parent.content-height;
+
+            // Header row: click to sort, drag right edge handle to resize column
+            HorizontalLayout {
+                height: root.header-height;
+
+                for name[i] in root.columns: Rectangle {
+                    width: root.widths[i];
+                    background: head-touch.has-hover ? Tokens.hover-on-surface : Tokens.surface-raised;
+
+                    // Bottom divider line
+                    Rectangle {
+                        y: parent.height - 1px;
+                        height: 1px;
+                        background: Tokens.border-on-surface;
+                    }
+
+                    head-touch := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { root.sort-requested(i); }
+                    }
+
+                    HorizontalLayout {
+                        padding-left: Tokens.spacing-small;
+                        padding-right: Tokens.spacing-small;
+
+                        Text {
+                            text: name + (root.sort-column == i ? (root.sort-descending ? " ▼" : " ▲") : "");
+                            color: Tokens.text-primary;
+                            font-weight: 700;
+                            font-size: Tokens.font-size-small;
+                            overflow: elide;
+                            vertical-alignment: center;
+                            horizontal-alignment: left;
+                        }
+                    }
+
+                    // Column resize handle on right edge
+                    Rectangle {
+                        x: parent.width - self.width;
+                        width: 6px;
+                        background: grip.has-hover ? Tokens.accent : transparent;
+
+                        grip := TouchArea {
+                            mouse-cursor: col-resize;
+                            moved => {
+                                if self.pressed {
+                                    root.column-resized(i, self.mouse-x - self.pressed-x);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Virtualized row list via ListView
+            ListView {
+                vertical-stretch: 1;
+
+                for row[r] in root.rows: Rectangle {
+                    height: root.row-height;
+                    background: r == root.selected-row ? Tokens.selected : (row-touch.has-hover ? Tokens.hover-on-surface : (mod(r, 2) == 1 ? Tokens.surface-raised : transparent));
+
+                    row-touch := TouchArea {
+                        clicked => { root.row-clicked(r); }
+                        double-clicked => { root.row-double-clicked(r); }
+                    }
+
+                    HorizontalLayout {
+                        for cell[i] in row.cells: Rectangle {
+                            width: root.widths[i];
+                            clip: true;
+
+                            Text {
+                                x: Tokens.spacing-small;
+                                width: parent.width - Tokens.spacing-small * 2;
+                                text: cell;
+                                color: r == root.selected-row ? Tokens.accent : Tokens.text-primary;
+                                font-size: Tokens.font-size-small;
+                                overflow: elide;
+                                vertical-alignment: center;
+                                horizontal-alignment: left;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

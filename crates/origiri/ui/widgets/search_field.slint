@@ -6,6 +6,8 @@ import { Icon, TablerIcons } from "@origiri-icons/icons.slint";
 export component SearchField inherits Rectangle {
     in-out property <string> text <=> input.text;
     in property <string> placeholder-text: "Search...";
+    in property <string> placeholder: "";
+    property <string> effective-placeholder: root.placeholder != "" ? root.placeholder : root.placeholder-text;
     in property <bool> enabled: true;
     out property <bool> has-focus: input.has-focus;
 
@@ -102,9 +104,9 @@ export component SearchField inherits Rectangle {
         }
     }
 
-    if root.text == "" && root.placeholder-text != "" && !input.has-focus: Text {
+    if root.text == "" && root.effective-placeholder != "" && !input.has-focus: Text {
         x: Tokens.spacing-small + 4px + 16px + Tokens.spacing-small;
-        text: root.placeholder-text;
+        text: root.effective-placeholder;
         color: Tokens.text-disabled-on-surface;
         font-size: Tokens.font-size-normal;
         vertical-alignment: center;

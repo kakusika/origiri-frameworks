@@ -1,0 +1,101 @@
+import { Tokens } from "@origiri/tokens.slint";
+
+// ImageViewer: pan-and-zoom image viewer with mouse drag panning, wheel zooming,
+// double-click to fit, and programmatic zoom controls.
+export component ImageViewer inherits Rectangle {
+    in property <image> source;
+    in property <float> min-zoom: 1.0;
+    in property <float> max-zoom: 16.0;
+    in property <float> zoom-factor: 1.15;
+    in-out property <float> zoom: 1.0;
+    in-out property <length> pan-x: 0px;
+    in-out property <length> pan-y: 0px;
+
+    callback zoom-changed(float);
+    callback panned(length, length);
+
+    public function fit() {
+        root.zoom = 1.0;
+        root.pan-x = 0px;
+        root.pan-y = 0px;
+        root.zoom-changed(root.zoom);
+        root.panned(root.pan-x, root.pan-y);
+    }
+
+    public function zoom-in() {
+        root.zoom = min(root.max-zoom, root.zoom * root.zoom-factor);
+        root.zoom-changed(root.zoom);
+    }
+
+    public function zoom-out() {
+        root.zoom = max(root.min-zoom, root.zoom / root.zoom-factor);
+        if root.zoom <= root.min-zoom {
+            root.pan-x = 0px;
+            root.pan-y = 0px;
+            root.panned(root.pan-x, root.pan-y);
+        }
+        root.zoom-changed(root.zoom);
+    }
+
+    // Auto-fit whenever the source image changes
+    changed source => {
+        root.fit();
+    }
+
+    clip: true;
+    background: Tokens.surface;
+
+    img := Image {
+        source: root.source;
+        image-fit: contain;
+        width: parent.width * root.zoom;
+        height: parent.height * root.zoom;
+        x: (parent.width - self.width) / 2 + root.pan-x;
+        y: (parent.height - self.height) / 2 + root.pan-y;
+    }
+
+    property <length> press-x;
+    property <length> press-y;
+    property <length> start-pan-x;
+    property <length> start-pan-y;
+
+    touch := TouchArea {
+        mouse-cursor: root.zoom > 1.0 ? (self.pressed ? MouseCursor.grabbing : MouseCursor.grab) : MouseCursor.default;
+
+        double-clicked => {
+            root.fit();
+        }
+
+        pointer-event(event) => {
+            if event.kind == PointerEventKind.down && event.button == PointerEventButton.left {
+                root.press-x = self.mouse-x;
+                root.press-y = self.mouse-y;
+                root.start-pan-x = root.pan-x;
+                root.start-pan-y = root.pan-y;
+            }
+        }
+
+        moved => {
+            if self.pressed && root.zoom > 1.0 {
+                root.pan-x = root.start-pan-x + (self.mouse-x - root.press-x);
+                root.pan-y = root.start-pan-y + (self.mouse-y - root.press-y);
+                root.panned(root.pan-x, root.pan-y);
+            }
+        }
+
+        scroll-event(event) => {
+            if event.delta-y > 0 {
+                root.zoom = min(root.max-zoom, root.zoom * root.zoom-factor);
+            } else if event.delta-y < 0 {
+                root.zoom = max(root.min-zoom, root.zoom / root.zoom-factor);
+            }
+            if root.zoom <= root.min-zoom {
+                root.pan-x = 0px;
+                root.pan-y = 0px;
+                root.panned(root.pan-x, root.pan-y);
+            }
+            root.zoom-changed(root.zoom);
+            return accept;
+        }
+    }
+}

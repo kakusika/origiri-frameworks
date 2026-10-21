@@ -34,6 +34,8 @@ import {
     FileGrid,
     FileGridCell,
     CollapsibleSection,
+    TableView,
+    TableRow,
 } from "@origiri/widgets.slint";
 
 // Live, interactive showcase of every `origiri-slint` widget grouped into collapsible sections.
@@ -829,6 +831,49 @@ export component OrigiriPage inherits Rectangle {
                             text: "Show";
                             checked: true;
                             toggled(c) => { root.status = "PropertyRow: Visible toggled(" + (c ? "true" : "false") + ")"; }
+                        }
+                    }
+                }
+            }
+
+            CollapsibleSection {
+                title: "TableView (Virtualized Data Table)";
+                expanded: true;
+
+                VerticalLayout {
+                    spacing: Tokens.spacing-small;
+
+                    Text {
+                        text: "TableView provides virtualized rows, resizable columns, sortable headers, and zebra striping.";
+                        color: Tokens.text-secondary;
+                        font-size: Tokens.font-size-small;
+                    }
+
+                    Rectangle {
+                        height: 140px;
+                        border-width: Tokens.border-width;
+                        border-color: Tokens.border-on-surface;
+                        border-radius: Tokens.corner-radius;
+                        clip: true;
+
+                        TableView {
+                            columns: ["Name", "Kind", "Size", "Status"];
+                            widths: [140px, 80px, 80px, 100px];
+                            total-width: 400px;
+                            sort-column: 0;
+                            sort-descending: false;
+                            rows: [
+                                { cells: ["document.rs", "Rust Source", "14.2 KB", "Synced"] },
+                                { cells: ["styles.slint", "Slint UI", "8.6 KB", "Modified"] },
+                                { cells: ["config.json", "JSON Config", "2.1 KB", "Synced"] },
+                                { cells: ["banner.png", "PNG Image", "128.4 KB", "Ignored"] },
+                            ];
+                            sort-requested(col) => {
+                                root.status = "TableView: sort column " + col;
+                            }
+                            row-clicked(row-idx) => {
+                                root.status = "TableView: row " + row-idx + " clicked";
+                            }
                         }
                     }
                 }
