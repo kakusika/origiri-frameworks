@@ -1,0 +1,247 @@
+// ResizeEdges: 8-direction perimeter drag handles for resizing floating windows,
+// subwindows, or borderless window frames.
+export component ResizeEdges inherits Rectangle {
+    in-out property <length> target-x;
+    in-out property <length> target-y;
+    in-out property <length> target-width;
+    in-out property <length> target-height;
+    in property <length> target-min-width: 100px;
+    in property <length> target-min-height: 80px;
+    in property <length> handle-thickness: 6px;
+    in property <bool> enabled: true;
+
+    callback resize-started();
+    callback resize-moved(length, length, length, length);
+    callback resize-ended();
+
+    property <length> geo-start-x;
+    property <length> geo-start-y;
+    property <length> geo-start-w;
+    property <length> geo-start-h;
+    property <length> drag-start-x;
+    property <length> drag-start-y;
+
+    // Top edge
+    top-edge := TouchArea {
+        enabled: root.enabled;
+        x: root.handle-thickness;
+        y: 0px;
+        width: parent.width - root.handle-thickness * 2;
+        height: root.handle-thickness;
+        mouse-cursor: MouseCursor.n-resize;
+        pointer-event(event) => {
+            if (event.kind == PointerEventKind.down) {
+                root.geo-start-y = root.target-y;
+                root.geo-start-h = root.target-height;
+                root.drag-start-y = self.mouse-y;
+                root.resize-started();
+            } else if (event.kind == PointerEventKind.up || event.kind == PointerEventKind.cancel) {
+                root.resize-ended();
+            }
+        }
+        moved => {
+            if (self.pressed) {
+                root.target-y = root.geo-start-y + min(root.geo-start-h - root.target-min-height, self.mouse-y - root.drag-start-y);
+                root.target-height = max(root.target-min-height, root.geo-start-h - (self.mouse-y - root.drag-start-y));
+                root.resize-moved(root.target-x, root.target-y, root.target-width, root.target-height);
+            }
+        }
+    }
+
+    // Bottom edge
+    bottom-edge := TouchArea {
+        enabled: root.enabled;
+        x: root.handle-thickness;
+        y: parent.height - root.handle-thickness;
+        width: parent.width - root.handle-thickness * 2;
+        height: root.handle-thickness;
+        mouse-cursor: MouseCursor.s-resize;
+        pointer-event(event) => {
+            if (event.kind == PointerEventKind.down) {
+                root.geo-start-h = root.target-height;
+                root.drag-start-y = self.mouse-y;
+                root.resize-started();
+            } else if (event.kind == PointerEventKind.up || event.kind == PointerEventKind.cancel) {
+                root.resize-ended();
+            }
+        }
+        moved => {
+            if (self.pressed) {
+                root.target-height = max(root.target-min-height, root.geo-start-h + (self.mouse-y - root.drag-start-y));
+                root.resize-moved(root.target-x, root.target-y, root.target-width, root.target-height);
+            }
+        }
+    }
+
+    // Left edge
+    left-edge := TouchArea {
+        enabled: root.enabled;
+        x: 0px;
+        y: root.handle-thickness;
+        width: root.handle-thickness;
+        height: parent.height - root.handle-thickness * 2;
+        mouse-cursor: MouseCursor.w-resize;
+        pointer-event(event) => {
+            if (event.kind == PointerEventKind.down) {
+                root.geo-start-x = root.target-x;
+                root.geo-start-w = root.target-width;
+                root.drag-start-x = self.mouse-x;
+                root.resize-started();
+            } else if (event.kind == PointerEventKind.up || event.kind == PointerEventKind.cancel) {
+                root.resize-ended();
+            }
+        }
+        moved => {
+            if (self.pressed) {
+                root.target-x = root.geo-start-x + min(root.geo-start-w - root.target-min-width, self.mouse-x - root.drag-start-x);
+                root.target-width = max(root.target-min-width, root.geo-start-w - (self.mouse-x - root.drag-start-x));
+                root.resize-moved(root.target-x, root.target-y, root.target-width, root.target-height);
+            }
+        }
+    }
+
+    // Right edge
+    right-edge := TouchArea {
+        enabled: root.enabled;
+        x: parent.width - root.handle-thickness;
+        y: root.handle-thickness;
+        width: root.handle-thickness;
+        height: parent.height - root.handle-thickness * 2;
+        mouse-cursor: MouseCursor.e-resize;
+        pointer-event(event) => {
+            if (event.kind == PointerEventKind.down) {
+                root.geo-start-w = root.target-width;
+                root.drag-start-x = self.mouse-x;
+                root.resize-started();
+            } else if (event.kind == PointerEventKind.up || event.kind == PointerEventKind.cancel) {
+                root.resize-ended();
+            }
+        }
+        moved => {
+            if (self.pressed) {
+                root.target-width = max(root.target-min-width, root.geo-start-w + (self.mouse-x - root.drag-start-x));
+                root.resize-moved(root.target-x, root.target-y, root.target-width, root.target-height);
+            }
+        }
+    }
+
+    // Top-left corner
+    top-left-corner := TouchArea {
+        enabled: root.enabled;
+        x: 0px;
+        y: 0px;
+        width: root.handle-thickness * 2;
+        height: root.handle-thickness * 2;
+        mouse-cursor: MouseCursor.nw-resize;
+        pointer-event(event) => {
+            if (event.kind == PointerEventKind.down) {
+                root.geo-start-x = root.target-x;
+                root.geo-start-y = root.target-y;
+                root.geo-start-w = root.target-width;
+                root.geo-start-h = root.target-height;
+                root.drag-start-x = self.mouse-x;
+                root.drag-start-y = self.mouse-y;
+                root.resize-started();
+            } else if (event.kind == PointerEventKind.up || event.kind == PointerEventKind.cancel) {
+                root.resize-ended();
+            }
+        }
+        moved => {
+            if (self.pressed) {
+                root.target-x = root.geo-start-x + min(root.geo-start-w - root.target-min-width, self.mouse-x - root.drag-start-x);
+                root.target-y = root.geo-start-y + min(root.geo-start-h - root.target-min-height, self.mouse-y - root.drag-start-y);
+                root.target-width = max(root.target-min-width, root.geo-start-w - (self.mouse-x - root.drag-start-x));
+                root.target-height = max(root.target-min-height, root.geo-start-h - (self.mouse-y - root.drag-start-y));
+                root.resize-moved(root.target-x, root.target-y, root.target-width, root.target-height);
+            }
+        }
+    }
+
+    // Top-right corner
+    top-right-corner := TouchArea {
+        enabled: root.enabled;
+        x: parent.width - root.handle-thickness * 2;
+        y: 0px;
+        width: root.handle-thickness * 2;
+        height: root.handle-thickness * 2;
+        mouse-cursor: MouseCursor.ne-resize;
+        pointer-event(event) => {
+            if (event.kind == PointerEventKind.down) {
+                root.geo-start-y = root.target-y;
+                root.geo-start-w = root.target-width;
+                root.geo-start-h = root.target-height;
+                root.drag-start-x = self.mouse-x;
+                root.drag-start-y = self.mouse-y;
+                root.resize-started();
+            } else if (event.kind == PointerEventKind.up || event.kind == PointerEventKind.cancel) {
+                root.resize-ended();
+            }
+        }
+        moved => {
+            if (self.pressed) {
+                root.target-y = root.geo-start-y + min(root.geo-start-h - root.target-min-height, self.mouse-y - root.drag-start-y);
+                root.target-width = max(root.target-min-width, root.geo-start-w + (self.mouse-x - root.drag-start-x));
+                root.target-height = max(root.target-min-height, root.geo-start-h - (self.mouse-y - root.drag-start-y));
+                root.resize-moved(root.target-x, root.target-y, root.target-width, root.target-height);
+            }
+        }
+    }
+
+    // Bottom-left corner
+    bottom-left-corner := TouchArea {
+        enabled: root.enabled;
+        x: 0px;
+        y: parent.height - root.handle-thickness * 2;
+        width: root.handle-thickness * 2;
+        height: root.handle-thickness * 2;
+        mouse-cursor: MouseCursor.sw-resize;
+        pointer-event(event) => {
+            if (event.kind == PointerEventKind.down) {
+                root.geo-start-x = root.target-x;
+                root.geo-start-w = root.target-width;
+                root.geo-start-h = root.target-height;
+                root.drag-start-x = self.mouse-x;
+                root.drag-start-y = self.mouse-y;
+                root.resize-started();
+            } else if (event.kind == PointerEventKind.up || event.kind == PointerEventKind.cancel) {
+                root.resize-ended();
+            }
+        }
+        moved => {
+            if (self.pressed) {
+                root.target-x = root.geo-start-x + min(root.geo-start-w - root.target-min-width, self.mouse-x - root.drag-start-x);
+                root.target-width = max(root.target-min-width, root.geo-start-w - (self.mouse-x - root.drag-start-x));
+                root.target-height = max(root.target-min-height, root.geo-start-h + (self.mouse-y - root.drag-start-y));
+                root.resize-moved(root.target-x, root.target-y, root.target-width, root.target-height);
+            }
+        }
+    }
+
+    // Bottom-right corner
+    bottom-right-corner := TouchArea {
+        enabled: root.enabled;
+        x: parent.width - root.handle-thickness * 2;
+        y: parent.height - root.handle-thickness * 2;
+        width: root.handle-thickness * 2;
+        height: root.handle-thickness * 2;
+        mouse-cursor: MouseCursor.se-resize;
+        pointer-event(event) => {
+            if (event.kind == PointerEventKind.down) {
+                root.geo-start-w = root.target-width;
+                root.geo-start-h = root.target-height;
+                root.drag-start-x = self.mouse-x;
+                root.drag-start-y = self.mouse-y;
+                root.resize-started();
+            } else if (event.kind == PointerEventKind.up || event.kind == PointerEventKind.cancel) {
+                root.resize-ended();
+            }
+        }
+        moved => {
+            if (self.pressed) {
+                root.target-width = max(root.target-min-width, root.geo-start-w + (self.mouse-x - root.drag-start-x));
+                root.target-height = max(root.target-min-height, root.geo-start-h + (self.mouse-y - root.drag-start-y));
+                root.resize-moved(root.target-x, root.target-y, root.target-width, root.target-height);
+            }
+        }
+    }
+}

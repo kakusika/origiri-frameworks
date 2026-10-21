@@ -1,5 +1,6 @@
 import { Tokens } from "@origiri/tokens.slint";
 import { Icon, TablerIcons } from "@origiri-icons/icons.slint";
+import { ResizeEdges } from "resize_edges.slint";
 
 // Slint port of origiri/qml/floating/FloatingWindow.qml.
 // Draggable, 8-way resizable, minimizable floating virtual window widget.
@@ -228,179 +229,15 @@ export component FloatingWindow inherits Rectangle {
     }
 
     // --- 8-direction Resize Perimeter Handles (Active when not maximized) ---
-    if !root.is-maximized && !root.is-minimized: top-edge := TouchArea {
-        x: root.resize-border;
-        y: 0px;
-        width: parent.width - root.resize-border * 2;
-        height: root.resize-border;
-        mouse-cursor: MouseCursor.n-resize;
-        pointer-event(event) => {
-            if (event.kind == PointerEventKind.down) {
-                root.geo-start-y = root.window-y;
-                root.geo-start-h = root.window-height;
-                root.drag-start-y = self.mouse-y;
-            }
-        }
-        moved => {
-            if (self.pressed) {
-                root.window-y = root.geo-start-y + min(root.geo-start-h - root.min-h, self.mouse-y - root.drag-start-y);
-                root.window-height = max(root.min-h, root.geo-start-h - (self.mouse-y - root.drag-start-y));
-            }
-        }
-    }
-
-    if !root.is-maximized && !root.is-minimized: bottom-edge := TouchArea {
-        x: root.resize-border;
-        y: parent.height - root.resize-border;
-        width: parent.width - root.resize-border * 2;
-        height: root.resize-border;
-        mouse-cursor: MouseCursor.s-resize;
-        pointer-event(event) => {
-            if (event.kind == PointerEventKind.down) {
-                root.geo-start-h = root.window-height;
-                root.drag-start-y = self.mouse-y;
-            }
-        }
-        moved => {
-            if (self.pressed) {
-                root.window-height = max(root.min-h, root.geo-start-h + (self.mouse-y - root.drag-start-y));
-            }
-        }
-    }
-
-    if !root.is-maximized && !root.is-minimized: left-edge := TouchArea {
-        x: 0px;
-        y: root.resize-border;
-        width: root.resize-border;
-        height: parent.height - root.resize-border * 2;
-        mouse-cursor: MouseCursor.w-resize;
-        pointer-event(event) => {
-            if (event.kind == PointerEventKind.down) {
-                root.geo-start-x = root.window-x;
-                root.geo-start-w = root.window-width;
-                root.drag-start-x = self.mouse-x;
-            }
-        }
-        moved => {
-            if (self.pressed) {
-                root.window-x = root.geo-start-x + min(root.geo-start-w - root.min-w, self.mouse-x - root.drag-start-x);
-                root.window-width = max(root.min-w, root.geo-start-w - (self.mouse-x - root.drag-start-x));
-            }
-        }
-    }
-
-    if !root.is-maximized && !root.is-minimized: right-edge := TouchArea {
-        x: parent.width - root.resize-border;
-        y: root.resize-border;
-        width: root.resize-border;
-        height: parent.height - root.resize-border * 2;
-        mouse-cursor: MouseCursor.e-resize;
-        pointer-event(event) => {
-            if (event.kind == PointerEventKind.down) {
-                root.geo-start-w = root.window-width;
-                root.drag-start-x = self.mouse-x;
-            }
-        }
-        moved => {
-            if (self.pressed) {
-                root.window-width = max(root.min-w, root.geo-start-w + (self.mouse-x - root.drag-start-x));
-            }
-        }
-    }
-
-    if !root.is-maximized && !root.is-minimized: top-left-corner := TouchArea {
-        x: 0px;
-        y: 0px;
-        width: root.resize-border * 2;
-        height: root.resize-border * 2;
-        mouse-cursor: MouseCursor.nw-resize;
-        pointer-event(event) => {
-            if (event.kind == PointerEventKind.down) {
-                root.geo-start-x = root.window-x;
-                root.geo-start-y = root.window-y;
-                root.geo-start-w = root.window-width;
-                root.geo-start-h = root.window-height;
-                root.drag-start-x = self.mouse-x;
-                root.drag-start-y = self.mouse-y;
-            }
-        }
-        moved => {
-            if (self.pressed) {
-                root.window-x = root.geo-start-x + min(root.geo-start-w - root.min-w, self.mouse-x - root.drag-start-x);
-                root.window-y = root.geo-start-y + min(root.geo-start-h - root.min-h, self.mouse-y - root.drag-start-y);
-                root.window-width = max(root.min-w, root.geo-start-w - (self.mouse-x - root.drag-start-x));
-                root.window-height = max(root.min-h, root.geo-start-h - (self.mouse-y - root.drag-start-y));
-            }
-        }
-    }
-
-    if !root.is-maximized && !root.is-minimized: top-right-corner := TouchArea {
-        x: parent.width - root.resize-border * 2;
-        y: 0px;
-        width: root.resize-border * 2;
-        height: root.resize-border * 2;
-        mouse-cursor: MouseCursor.ne-resize;
-        pointer-event(event) => {
-            if (event.kind == PointerEventKind.down) {
-                root.geo-start-y = root.window-y;
-                root.geo-start-w = root.window-width;
-                root.geo-start-h = root.window-height;
-                root.drag-start-x = self.mouse-x;
-                root.drag-start-y = self.mouse-y;
-            }
-        }
-        moved => {
-            if (self.pressed) {
-                root.window-y = root.geo-start-y + min(root.geo-start-h - root.min-h, self.mouse-y - root.drag-start-y);
-                root.window-width = max(root.min-w, root.geo-start-w + (self.mouse-x - root.drag-start-x));
-                root.window-height = max(root.min-h, root.geo-start-h - (self.mouse-y - root.drag-start-y));
-            }
-        }
-    }
-
-    if !root.is-maximized && !root.is-minimized: bottom-left-corner := TouchArea {
-        x: 0px;
-        y: parent.height - root.resize-border * 2;
-        width: root.resize-border * 2;
-        height: root.resize-border * 2;
-        mouse-cursor: MouseCursor.sw-resize;
-        pointer-event(event) => {
-            if (event.kind == PointerEventKind.down) {
-                root.geo-start-x = root.window-x;
-                root.geo-start-w = root.window-width;
-                root.geo-start-h = root.window-height;
-                root.drag-start-x = self.mouse-x;
-                root.drag-start-y = self.mouse-y;
-            }
-        }
-        moved => {
-            if (self.pressed) {
-                root.window-x = root.geo-start-x + min(root.geo-start-w - root.min-w, self.mouse-x - root.drag-start-x);
-                root.window-width = max(root.min-w, root.geo-start-w - (self.mouse-x - root.drag-start-x));
-                root.window-height = max(root.min-h, root.geo-start-h + (self.mouse-y - root.drag-start-y));
-            }
-        }
-    }
-
-    if !root.is-maximized && !root.is-minimized: bottom-right-corner := TouchArea {
-        x: parent.width - root.resize-border * 2;
-        y: parent.height - root.resize-border * 2;
-        width: root.resize-border * 2;
-        height: root.resize-border * 2;
-        mouse-cursor: MouseCursor.se-resize;
-        pointer-event(event) => {
-            if (event.kind == PointerEventKind.down) {
-                root.geo-start-w = root.window-width;
-                root.geo-start-h = root.window-height;
-                root.drag-start-x = self.mouse-x;
-                root.drag-start-y = self.mouse-y;
-            }
-        }
-        moved => {
-            if (self.pressed) {
-                root.window-width = max(root.min-w, root.geo-start-w + (self.mouse-x - root.drag-start-x));
-                root.window-height = max(root.min-h, root.geo-start-h + (self.mouse-y - root.drag-start-y));
-            }
-        }
+    if !root.is-maximized && !root.is-minimized: ResizeEdges {
+        width: 100%;
+        height: 100%;
+        handle-thickness: root.resize-border;
+        target-min-width: root.min-w;
+        target-min-height: root.min-h;
+        target-x <=> root.window-x;
+        target-y <=> root.window-y;
+        target-width <=> root.window-width;
+        target-height <=> root.window-height;
     }
 }

@@ -6,6 +6,10 @@ import {
     MenuItemEntry,
     ModalDialog,
     ConfirmDialog,
+    PromptDialog,
+    PropertyRow,
+    PropertySection,
+    SearchField,
     IoErrorBanner,
     Notifications,
     ToastHost,
@@ -298,6 +302,30 @@ export component OrigiriPage inherits Rectangle {
                                 step: 1;
                                 decimals: 0;
                                 value-changed(v) => { root.status = "ValueSlider: size = " + v; }
+                            }
+                        }
+                    }
+
+                    // SearchField
+                    VerticalLayout {
+                        spacing: Tokens.spacing-small;
+                        Text {
+                            text: "SearchField (Search input with clear button)";
+                            font-weight: 600;
+                            font-size: Tokens.font-size-small;
+                            color: Tokens.text-secondary;
+                        }
+
+                        HorizontalLayout {
+                            spacing: Tokens.spacing-large;
+                            alignment: start;
+
+                            SearchField {
+                                width: 260px;
+                                placeholder-text: "Search components...";
+                                accepted(q) => { root.status = "SearchField: accepted(" + q + ")"; }
+                                edited(q) => { root.status = "SearchField: edited(" + q + ")"; }
+                                cleared => { root.status = "SearchField: cleared"; }
                             }
                         }
                     }
@@ -664,6 +692,22 @@ export component OrigiriPage inherits Rectangle {
                                 confirmed => { root.status = "ConfirmDialog: confirmed"; }
                                 cancelled => { root.status = "ConfirmDialog: cancelled"; }
                             }
+
+                            open-prompt-btn := AppButton {
+                                text: "Open PromptDialog";
+                                clicked => { prompt.show(); }
+                            }
+
+                            prompt := PromptDialog {
+                                x: open-prompt-btn.x;
+                                y: open-prompt-btn.y + open-prompt-btn.height;
+                                title: "Rename Item";
+                                message: "Enter a new name for the item:";
+                                placeholder-text: "New name...";
+                                value: "My Item";
+                                confirmed(v) => { root.status = "PromptDialog: confirmed(" + v + ")"; }
+                                cancelled => { root.status = "PromptDialog: cancelled"; }
+                            }
                         }
                     }
 
@@ -757,6 +801,35 @@ export component OrigiriPage inherits Rectangle {
                         color: Tokens.text-secondary;
                         font-size: Tokens.font-size-normal;
                         wrap: word-wrap;
+                    }
+                }
+            }
+
+            CollapsibleSection {
+                title: "PropertySection & PropertyRow (Inspector Layout)";
+                expanded: true;
+
+                PropertySection {
+                    title: "Node Transform";
+                    description: "Standard key-value inspector layout for properties and settings views.";
+
+                    PropertyRow {
+                        label: "Position X";
+                        description: "Horizontal coordinate in world units";
+                        NumberInput {
+                            value: 12.5;
+                            value-changed(v) => { root.status = "PropertyRow: X = " + v; }
+                        }
+                    }
+
+                    PropertyRow {
+                        label: "Visible";
+                        description: "Render this object in the scene";
+                        ToggleButton {
+                            text: "Show";
+                            checked: true;
+                            toggled(c) => { root.status = "PropertyRow: Visible toggled(" + (c ? "true" : "false") + ")"; }
+                        }
                     }
                 }
             }

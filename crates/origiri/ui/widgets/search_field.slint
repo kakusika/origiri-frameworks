@@ -1,0 +1,112 @@
+import { Tokens } from "@origiri/tokens.slint";
+import { Icon, TablerIcons } from "@origiri-icons/icons.slint";
+
+// SearchField: unified search and filter input with search icon, clear button,
+// placeholder text, and focus styling.
+export component SearchField inherits Rectangle {
+    in-out property <string> text <=> input.text;
+    in property <string> placeholder-text: "Search...";
+    in property <bool> enabled: true;
+    out property <bool> has-focus: input.has-focus;
+
+    callback accepted(string);
+    callback edited(string);
+    callback cleared();
+
+    forward-focus: input;
+
+    public function select-all() {
+        input.select-all();
+    }
+
+    public function clear() {
+        root.text = "";
+        root.cleared();
+        root.edited("");
+    }
+
+    height: 32px;
+    border-radius: Tokens.corner-radius;
+    border-width: input.has-focus ? 1.5px : Tokens.border-width;
+    border-color: !root.enabled ? Tokens.border-on-surface : input.has-focus ? Tokens.accent : (touch.has-hover ? Tokens.border-hover-on-surface : Tokens.border-on-surface);
+    background: !root.enabled ? Tokens.background : Tokens.surface;
+
+    animate border-color {
+        duration: Tokens.anim-very-short * 1ms;
+        easing: ease-out;
+    }
+    animate border-width {
+        duration: Tokens.anim-very-short * 1ms;
+        easing: ease-out;
+    }
+    animate background {
+        duration: Tokens.anim-very-short * 1ms;
+    }
+
+    touch := TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: MouseCursor.text;
+        clicked => { input.focus(); }
+    }
+
+    HorizontalLayout {
+        padding-left: Tokens.spacing-small + 4px;
+        padding-right: Tokens.spacing-small;
+        spacing: Tokens.spacing-small;
+
+        // Search icon
+        Rectangle {
+            width: 16px;
+            Icon {
+                y: (parent.height - self.height) / 2;
+                width: 14px;
+                height: 14px;
+                source: TablerIcons.search;
+                color: input.has-focus ? Tokens.accent : (root.enabled ? Tokens.text-secondary-on-surface : Tokens.text-disabled-on-surface);
+            }
+        }
+
+        // Text input field
+        input := TextInput {
+            horizontal-stretch: 1;
+            enabled: root.enabled;
+            color: root.enabled ? Tokens.text-primary : Tokens.text-disabled-on-surface;
+            font-size: Tokens.font-size-normal;
+            vertical-alignment: center;
+            single-line: true;
+            accepted => { root.accepted(self.text); }
+            edited => { root.edited(self.text); }
+        }
+
+        // Clear button
+        if root.text != "" && root.enabled: clear-btn := Rectangle {
+            width: 20px;
+            height: 20px;
+            y: (parent.height - self.height) / 2;
+            border-radius: 10px;
+            background: clear-touch.has-hover ? Tokens.hover-on-surface : transparent;
+
+            Icon {
+                x: (parent.width - self.width) / 2;
+                y: (parent.height - self.height) / 2;
+                width: 12px;
+                height: 12px;
+                source: TablerIcons.x;
+                color: clear-touch.has-hover ? Tokens.text-primary : Tokens.text-secondary-on-surface;
+            }
+
+            clear-touch := TouchArea {
+                mouse-cursor: pointer;
+                clicked => { root.clear(); }
+            }
+        }
+    }
+
+    if root.text == "" && root.placeholder-text != "" && !input.has-focus: Text {
+        x: Tokens.spacing-small + 4px + 16px + Tokens.spacing-small;
+        text: root.placeholder-text;
+        color: Tokens.text-disabled-on-surface;
+        font-size: Tokens.font-size-normal;
+        vertical-alignment: center;
+    }
+}

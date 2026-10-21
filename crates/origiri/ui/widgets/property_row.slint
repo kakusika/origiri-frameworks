@@ -1,0 +1,71 @@
+import { Tokens } from "@origiri/tokens.slint";
+
+// PropertyRow: standard two-column layout for inspector panels and settings views.
+// Label and optional description on the left, interactive control (@children) on the right.
+export component PropertyRow inherits HorizontalLayout {
+    in property <string> label;
+    in property <string> description: "";
+    in property <bool> enabled: true;
+
+    spacing: Tokens.spacing-medium;
+    alignment: space-between;
+
+    VerticalLayout {
+        horizontal-stretch: 1;
+        alignment: center;
+        spacing: 2px;
+
+        Text {
+            text: root.label;
+            color: root.enabled ? Tokens.text-primary : Tokens.text-disabled-on-surface;
+            font-size: Tokens.font-size-normal;
+            overflow: elide;
+            vertical-alignment: center;
+        }
+
+        if root.description != "": Text {
+            text: root.description;
+            color: Tokens.text-secondary-on-surface;
+            font-size: Tokens.font-size-small;
+            overflow: elide;
+            vertical-alignment: center;
+        }
+    }
+
+    HorizontalLayout {
+        horizontal-stretch: 0;
+        alignment: end;
+        @children
+    }
+}
+
+// PropertySection: container for grouping property rows with a section header,
+// optional description, and optional top divider.
+export component PropertySection inherits VerticalLayout {
+    in property <string> title;
+    in property <string> description: "";
+    in property <bool> show-divider: false;
+
+    spacing: Tokens.spacing-medium;
+
+    if root.show-divider: Rectangle {
+        height: 1px;
+        background: Tokens.divider-on-surface;
+    }
+
+    if root.title != "": Text {
+        text: root.title;
+        font-size: Tokens.font-size-large;
+        font-weight: 700;
+        color: Tokens.text-primary;
+    }
+
+    if root.description != "": Text {
+        text: root.description;
+        font-size: Tokens.font-size-small;
+        color: Tokens.text-secondary-on-surface;
+        wrap: word-wrap;
+    }
+
+    @children
+}
